@@ -1,4 +1,5 @@
 ﻿using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Engines;
 using Bogus;
 using QueryUrlParams.Attributes;
 
@@ -47,12 +48,15 @@ namespace QueryUrlParams.Benchmarks
             _dtos = faker.Generate(1000);
         }
 
+        private readonly Consumer _consumer = new();
+
         [Benchmark]
         public void GenerateQueryUrl()
         {
             foreach (var dto in _dtos)
             {
                 var queryUrl = dto.ToQueryUrl(BaseUrl);
+                _consumer.Consume(queryUrl);
             }
         }
 
@@ -62,6 +66,7 @@ namespace QueryUrlParams.Benchmarks
             foreach (var dto in _dtos)
             {
                 var queryUrl = QueryUrlParamsReflection.ToQueryUrl(dto, BaseUrl, true);
+                _consumer.Consume(queryUrl);
             }
         }
     }

@@ -1,0 +1,44 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace QueryUrlParams.Helpers
+{
+    public static class QueryParamStringBuilder
+    {
+        public static void AppendParam(StringBuilder sb, string key, string value)
+        {
+            if (string.IsNullOrEmpty(value))
+                return;
+
+            if (sb.Length > 0)
+                sb.Append("&");
+
+            sb.Append(key);
+            sb.Append("=");
+            sb.Append(Uri.EscapeDataString(value));
+        }
+
+        public static void AppendParams<T>(StringBuilder sb, string key, IEnumerable<T> values)
+        {
+            if (values == null || !values.Any()) return;
+
+            foreach (var value in values)
+            {
+                AppendParam(sb, key, value?.ToString());
+            }
+        }
+
+        public static void AppendParams<TKey, TValue>(StringBuilder sb, string key, IDictionary<TKey, TValue> dict)
+        {
+            if (dict == null || !dict.Keys.Any()) return;
+            
+            foreach (var kvp in dict)
+            {
+                if (kvp.Key == null || kvp.Value == null) continue;
+                AppendParam(sb, $"{kvp.Key}", kvp.Value?.ToString());
+            }
+        }
+    }
+}
