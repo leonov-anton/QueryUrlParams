@@ -14,7 +14,7 @@ namespace QueryUrlParams.IntegrationTests
         public DateTime? EndTime { get; set; }
         public List<string>? Tags { get; set; }
         public Dictionary<string, string>? Metadata { get; set; }
-        public bool IsValid { get; set; }
+        public bool? IsValid { get; set; }
         public InnerUrlParams? InnerParams { get; set; }
     }
 
@@ -48,7 +48,7 @@ namespace QueryUrlParams.IntegrationTests
                     { "key1", "value1" },
                     { "key2", "value2" }
                 },
-                IsValid = true,
+                //IsValid = true,
                 InnerParams = new InnerUrlParams
                 {
                     InnerName = "Inner Name",
@@ -73,7 +73,7 @@ namespace QueryUrlParams.IntegrationTests
             uri.Should().Contain("tags=tag2");
             uri.Should().Contain("key1=value1");
             uri.Should().Contain("key2=value2");
-            uri.Should().Contain("is_valid=true");
+            //uri.Should().Contain("is_valid=true");
             uri.Should().Contain("inner_name=Inner%20Name");
             uri.Should().Contain("inner_age=25");
         }

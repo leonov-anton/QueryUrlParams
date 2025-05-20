@@ -20,6 +20,24 @@ namespace QueryUrlParams.Helpers
             sb.Append(Uri.EscapeDataString(value));
         }
 
+        public static void AppendParam(StringBuilder sb, string key, double? value)
+        {
+            if (value == null) return;
+            AppendParam(sb, key, value?.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        }
+
+        public static void AppendParam(StringBuilder sb, string key, int? value)
+        {
+            if (value == null) return;
+            AppendParam(sb, key, value?.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        }
+
+        public static void AppendParam(StringBuilder sb, string key, bool? value)
+        {
+            if (value == null) return;
+            AppendParam(sb, key, value?.ToString().ToLowerInvariant());
+        }
+
         public static void AppendParams<T>(StringBuilder sb, string key, IEnumerable<T> values)
         {
             if (values == null || !values.Any()) return;
