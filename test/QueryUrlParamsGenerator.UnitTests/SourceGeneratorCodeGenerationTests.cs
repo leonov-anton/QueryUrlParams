@@ -76,17 +76,17 @@ namespace QueryUrlParamsGenerator.UnitTests
                         /// Extracts the list of query parameters from the <see cref="SomeUrlParams"/> object.
                         /// <summary>
                         /// <param name="obj">The source object containing parameter values.</param>
-                        /// <returns>A collection of query parameter strings.</returns>
+                        /// <returns>A string of query parameter with & separator.</returns>
                         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-                        public static IEnumerable<string> GetObjectUrlParams(SomeUrlParams obj)
+                        public static string GetObjectUrlParams(SomeUrlParams obj)
                         {
-                            var parameters = new List<string>();
-                            parameters.Add(global::QueryUrlParams.Helpers.QueryParamBuilder.FromString(obj.Name, "name"));
-                            parameters.Add(global::QueryUrlParams.Helpers.QueryParamBuilder.FromInt(obj.Age, "age"));
-                            parameters.Add(global::QueryUrlParams.Helpers.QueryParamBuilder.FromString(obj.Address, "address"));
-                            parameters.Add(global::QueryUrlParams.Helpers.QueryParamBuilder.FromString(obj.PhoneNumber, "phone_number"));
-                            parameters.Add(global::QueryUrlParams.Helpers.QueryParamBuilder.FromString(obj.Email, "email"));
-                            return parameters.Where(p => !string.IsNullOrWhiteSpace(p));
+                            var sb = new StringBuilder(256);
+                            global::QueryUrlParams.Helpers.QueryParamStringBuilder.AppendParam(sb, "name", obj.Name);
+                            global::QueryUrlParams.Helpers.QueryParamStringBuilder.AppendParam(sb, "age", obj.Age?.ToString());
+                            global::QueryUrlParams.Helpers.QueryParamStringBuilder.AppendParam(sb, "address", obj.Address);
+                            global::QueryUrlParams.Helpers.QueryParamStringBuilder.AppendParam(sb, "phone_number", obj.PhoneNumber);
+                            global::QueryUrlParams.Helpers.QueryParamStringBuilder.AppendParam(sb, "email", obj.Email);
+                            return sb.ToString();
                         }
                     }
                 }
@@ -163,17 +163,17 @@ namespace QueryUrlParamsGenerator.UnitTests
                         /// Extracts the list of query parameters from the <see cref="SomeUrlParams"/> object.
                         /// <summary>
                         /// <param name="obj">The source object containing parameter values.</param>
-                        /// <returns>A collection of query parameter strings.</returns>
+                        /// <returns>A string of query parameter with & separator.</returns>
                         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-                        public static IEnumerable<string> GetObjectUrlParams(SomeUrlParams obj)
+                        public static string GetObjectUrlParams(SomeUrlParams obj)
                         {
-                            var parameters = new List<string>();
-                            parameters.Add(global::QueryUrlParams.Helpers.QueryParamBuilder.FromString(obj.Name, "name"));
-                            parameters.Add(global::QueryUrlParams.Helpers.QueryParamBuilder.FromInt(obj.Age, "age"));
-                            parameters.Add(global::QueryUrlParams.Helpers.QueryParamBuilder.FromString(obj.Address, "address"));
-                            parameters.Add(global::QueryUrlParams.Helpers.QueryParamBuilder.FromString(obj.PhoneNumber, "phone_number"));
-                            parameters.Add(global::QueryUrlParams.Helpers.QueryParamBuilder.FromString(obj.Email, "email"));
-                            return parameters.Where(p => !string.IsNullOrWhiteSpace(p));
+                            var sb = new StringBuilder(256);
+                            global::QueryUrlParams.Helpers.QueryParamStringBuilder.AppendParam(sb, "name", obj.Name);
+                            global::QueryUrlParams.Helpers.QueryParamStringBuilder.AppendParam(sb, "age", obj.Age?.ToString());
+                            global::QueryUrlParams.Helpers.QueryParamStringBuilder.AppendParam(sb, "address", obj.Address);
+                            global::QueryUrlParams.Helpers.QueryParamStringBuilder.AppendParam(sb, "phone_number", obj.PhoneNumber);
+                            global::QueryUrlParams.Helpers.QueryParamStringBuilder.AppendParam(sb, "email", obj.Email);
+                            return sb.ToString();
                         }
                     }
                 }
@@ -251,16 +251,16 @@ namespace QueryUrlParamsGenerator.UnitTests
                         /// Extracts the list of query parameters from the <see cref="SomeUrlParams"/> object.
                         /// <summary>
                         /// <param name="obj">The source object containing parameter values.</param>
-                        /// <returns>A collection of query parameter strings.</returns>
+                        /// <returns>A string of query parameter with & separator.</returns>
                         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-                        public static IEnumerable<string> GetObjectUrlParams(SomeUrlParams obj)
+                        public static string GetObjectUrlParams(SomeUrlParams obj)
                         {
-                            var parameters = new List<string>();
-                            parameters.Add(global::QueryUrlParams.Helpers.QueryParamBuilder.FromString(obj.Name, "name"));
-                            parameters.Add(global::QueryUrlParams.Helpers.QueryParamBuilder.FromInt(obj.Age, "age"));
-                            parameters.Add(global::QueryUrlParams.Helpers.QueryParamBuilder.FromString(obj.Address, "address"));
-                            parameters.Add(global::QueryUrlParams.Helpers.QueryParamBuilder.FromString(obj.PhoneNumber, "phone_number"));
-                            return parameters.Where(p => !string.IsNullOrWhiteSpace(p));
+                            var sb = new StringBuilder(256);
+                            global::QueryUrlParams.Helpers.QueryParamStringBuilder.AppendParam(sb, "name", obj.Name);
+                            global::QueryUrlParams.Helpers.QueryParamStringBuilder.AppendParam(sb, "age", obj.Age?.ToString());
+                            global::QueryUrlParams.Helpers.QueryParamStringBuilder.AppendParam(sb, "address", obj.Address);
+                            global::QueryUrlParams.Helpers.QueryParamStringBuilder.AppendParam(sb, "phone_number", obj.PhoneNumber);
+                            return sb.ToString();
                         }
                     }
                 }
@@ -338,17 +338,17 @@ namespace QueryUrlParamsGenerator.UnitTests
                         /// Extracts the list of query parameters from the <see cref="SomeUrlParams"/> object.
                         /// <summary>
                         /// <param name="obj">The source object containing parameter values.</param>
-                        /// <returns>A collection of query parameter strings.</returns>
+                        /// <returns>A string of query parameter with & separator.</returns>
                         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-                        public static IEnumerable<string> GetObjectUrlParams(SomeUrlParams obj)
+                        public static string GetObjectUrlParams(SomeUrlParams obj)
                         {
-                            var parameters = new List<string>();
-                            parameters.Add(global::QueryUrlParams.Helpers.QueryParamBuilder.FromString(obj.Name, "user_name"));
-                            parameters.Add(global::QueryUrlParams.Helpers.QueryParamBuilder.FromInt(obj.Age, "age"));
-                            parameters.Add(global::QueryUrlParams.Helpers.QueryParamBuilder.FromString(obj.Address, "address"));
-                            parameters.Add(global::QueryUrlParams.Helpers.QueryParamBuilder.FromString(obj.PhoneNumber, "phone_number"));
-                            parameters.Add(global::QueryUrlParams.Helpers.QueryParamBuilder.FromString(obj.Email, "email"));
-                            return parameters.Where(p => !string.IsNullOrWhiteSpace(p));
+                            var sb = new StringBuilder(256);
+                            global::QueryUrlParams.Helpers.QueryParamStringBuilder.AppendParam(sb, "user_name", obj.Name);
+                            global::QueryUrlParams.Helpers.QueryParamStringBuilder.AppendParam(sb, "age", obj.Age?.ToString());
+                            global::QueryUrlParams.Helpers.QueryParamStringBuilder.AppendParam(sb, "address", obj.Address);
+                            global::QueryUrlParams.Helpers.QueryParamStringBuilder.AppendParam(sb, "phone_number", obj.PhoneNumber);
+                            global::QueryUrlParams.Helpers.QueryParamStringBuilder.AppendParam(sb, "email", obj.Email);
+                            return sb.ToString();
                         }
                     }
                 }

@@ -15,8 +15,8 @@ namespace QueryUrlParams.Benchmarks
                 return string.Empty;
 
             var properties = obj.GetType().GetProperties();
-            var queryParams = new List<string>();
-            
+            var sb = new StringBuilder();
+
             foreach (var property in properties)
             {
                 var name = snakeCase ? ToSnakeCase(property.Name) : property.Name;
@@ -24,29 +24,35 @@ namespace QueryUrlParams.Benchmarks
                 
                 if (value != null)
                 {
+                    if (sb.Length > 0)
+                        sb.Append('&');
+                    
                     if (value is Dictionary<string, object>)
                     {
                         foreach (var kvp in (Dictionary<string, object>)value)
                         {
                             if (kvp.Key is null || kvp.Value is null) continue;
-                            queryParams.Add($"{kvp.Key}={Uri.EscapeDataString(ConvertToString(kvp.Value))}");
+
+                            sb.Append($"{kvp.Key}={Uri.EscapeDataString(ConvertToString(kvp.Value))}");
                         }
                     }
                     else if (value is IEnumerable<object> enumerable)
                     {
                         foreach (var item in enumerable)
                         {
-                            queryParams.Add($"{property.Name}={ConvertToString(item)}");
+                            sb.Append($"&{name}={Uri.EscapeDataString(ConvertToString(item))}");
                         }
                     }
                     else
                     {
-                        queryParams.Add($"{property.Name}={ConvertToString(value)}");
+                        sb.Append($"{name}={Uri.EscapeDataString(ConvertToString(value))}");
                     }
                 }
             }
             
-            return queryParams.Any() ? $"{baseUrl}?{string.Join("&", queryParams)}" : baseUrl;
+            return sb.Length > 0
+                ? $"{baseUrl}?{sb}"
+                : baseUrl;
         }
 
         private static string ConvertToString(object value)
