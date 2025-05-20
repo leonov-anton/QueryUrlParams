@@ -61,7 +61,7 @@ namespace QueryUrlParamsGenerator.SourceGenerators.PropertyHandlers
         public override bool CanHandle(PropertyInfo prop) =>
             prop.Type.SpecialType == SpecialType.System_Double;
         public override string GetStatement(PropertyInfo prop) =>
-            $"{queryParamBuilderNamespase}.AppendParam(sb, \"{prop.Name}\", obj.{prop.OriginalName}?.ToString());";
+            $"{queryParamBuilderNamespase}.AppendParam(sb, \"{prop.Name}\", obj.{prop.OriginalName});";
     }
 
     internal class IntPropertyHandlerStringBuilder : PropertyHandlerBase
@@ -69,7 +69,7 @@ namespace QueryUrlParamsGenerator.SourceGenerators.PropertyHandlers
         public override bool CanHandle(PropertyInfo prop) =>
             prop.Type.SpecialType == SpecialType.System_Int32;
         public override string GetStatement(PropertyInfo prop) =>
-            $"{queryParamBuilderNamespase}.AppendParam(sb, \"{prop.Name}\", obj.{prop.OriginalName}?.ToString());";
+            $"{queryParamBuilderNamespase}.AppendParam(sb, \"{prop.Name}\", obj.{prop.OriginalName});";
     }
 
     internal class DateTimePropertyHandlerStringBuilder : PropertyHandlerBase
@@ -105,7 +105,7 @@ namespace QueryUrlParamsGenerator.SourceGenerators.PropertyHandlers
         public override bool CanHandle(PropertyInfo prop) =>
             prop.Type.SpecialType == SpecialType.System_Boolean;
         public override string GetStatement(PropertyInfo prop) =>
-            $"{queryParamBuilderNamespase}.AppendParam(sb, \"{prop.Name}\", obj.{prop.OriginalName}.ToString().ToLowerInvariant());";
+            $"{queryParamBuilderNamespase}.AppendParam(sb, \"{prop.Name}\", obj.{prop.OriginalName});";
     }
 
     internal class DefaultPropertyHandlerStringBuilder : PropertyHandlerBase
