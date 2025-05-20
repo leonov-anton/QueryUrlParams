@@ -1,0 +1,57 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35527.113
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QueryUrlParamsGenerator", "src\QueryUrlParamsGenerator\QueryUrlParamsGenerator.csproj", "{06B1727B-262D-432E-ADB6-269572C1B7DE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QueryUrlParams", "src\QueryUrlParams\QueryUrlParams.csproj", "{40945294-9ACD-4020-9142-14704DBA32BA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{9D338441-0660-46B1-A84D-5B17F3F7297E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{8BCA0FC3-A70C-4066-A1B6-5207A70001A2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QueryUrlParamsGenerator.UnitTests", "test\QueryUrlParamsGenerator.UnitTests\QueryUrlParamsGenerator.UnitTests.csproj", "{E616BA11-ACBB-44EC-9909-6599708A93D9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QueryUrlParams.IntegrationTests", "test\QueryUrlParams.IntegrationTests\QueryUrlParams.IntegrationTests.csproj", "{6D3D7988-F5A8-4A70-96F6-F03FFF69509F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QueryUrlParams.Benchmarks", "test\QueryUrlParams.Benchmarks\QueryUrlParams.Benchmarks.csproj", "{E2792176-1787-40D8-9B16-2C4658F243A0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{06B1727B-262D-432E-ADB6-269572C1B7DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{06B1727B-262D-432E-ADB6-269572C1B7DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{06B1727B-262D-432E-ADB6-269572C1B7DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{06B1727B-262D-432E-ADB6-269572C1B7DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{40945294-9ACD-4020-9142-14704DBA32BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{40945294-9ACD-4020-9142-14704DBA32BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{40945294-9ACD-4020-9142-14704DBA32BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{40945294-9ACD-4020-9142-14704DBA32BA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E616BA11-ACBB-44EC-9909-6599708A93D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E616BA11-ACBB-44EC-9909-6599708A93D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E616BA11-ACBB-44EC-9909-6599708A93D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E616BA11-ACBB-44EC-9909-6599708A93D9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6D3D7988-F5A8-4A70-96F6-F03FFF69509F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6D3D7988-F5A8-4A70-96F6-F03FFF69509F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6D3D7988-F5A8-4A70-96F6-F03FFF69509F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6D3D7988-F5A8-4A70-96F6-F03FFF69509F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E2792176-1787-40D8-9B16-2C4658F243A0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E2792176-1787-40D8-9B16-2C4658F243A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E2792176-1787-40D8-9B16-2C4658F243A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E2792176-1787-40D8-9B16-2C4658F243A0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{06B1727B-262D-432E-ADB6-269572C1B7DE} = {8BCA0FC3-A70C-4066-A1B6-5207A70001A2}
+		{40945294-9ACD-4020-9142-14704DBA32BA} = {8BCA0FC3-A70C-4066-A1B6-5207A70001A2}
+		{E616BA11-ACBB-44EC-9909-6599708A93D9} = {9D338441-0660-46B1-A84D-5B17F3F7297E}
+		{6D3D7988-F5A8-4A70-96F6-F03FFF69509F} = {9D338441-0660-46B1-A84D-5B17F3F7297E}
+		{E2792176-1787-40D8-9B16-2C4658F243A0} = {9D338441-0660-46B1-A84D-5B17F3F7297E}
+	EndGlobalSection
+EndGlobal
