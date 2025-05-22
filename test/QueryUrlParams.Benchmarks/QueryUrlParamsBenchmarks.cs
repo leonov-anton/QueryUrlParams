@@ -47,21 +47,25 @@ namespace QueryUrlParams.Benchmarks
             _dtos = faker.Generate(1000);
         }
 
-        [Benchmark]
+        private readonly Consumer _consumer = new();
+
+        [Benchmark(OperationsPerInvoke = 1000)]
         public void GenerateQueryUrl()
         {
-            foreach (var dto in _dtos)
+            for (int i = 0; i < 1000; i++)
             {
-                var queryUrl = dto.ToQueryUrl(BaseUrl);
+                var queryUrl = _dtos[i].ToQueryUrl(BaseUrl);
+                _consumer.Consume(queryUrl);
             }
         }
 
-        [Benchmark]
+        [Benchmark(OperationsPerInvoke = 1000)]
         public void GenerateQueryUrlReflection()
         {
-            foreach (var dto in _dtos)
+            for (int i = 0; i < 1000; i++)
             {
-                var queryUrl = QueryUrlParamsReflection.ToQueryUrl(dto, BaseUrl, true);
+                var queryUrl = QueryUrlParamsReflection.ToQueryUrl(_dtos[i], BaseUrl, true);
+                _consumer.Consume(queryUrl);
             }
         }
     }
