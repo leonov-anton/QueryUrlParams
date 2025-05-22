@@ -29,7 +29,7 @@ Follow these steps to get started:
 4. **Call `.ToQueryUrl(baseUrl)` on your DTO instance**  
    This returns the full URL with all non-null properties serialized as query parameters with passing Base Url or without it.
 
-### 🛠️ Example
+## 🛠️ Example
 ```csharp
 using QueryUrlParams;
 
