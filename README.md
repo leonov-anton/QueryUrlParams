@@ -40,13 +40,13 @@ public class SomeUrlParams
 
     public int? Age { get; set; }
 
-    [QueryIgnore] // This property will be ignored
+    [QueryParameterIgnore] // This property will be ignored
     public string? InternalToken { get; set; }
 
-    [QueryKey("phone")] // Use a custom key name in the query string
+    [QueryParameterName("phone")] // Use a custom key name in the query string
     public string? PhoneNumber { get; set; }
 
-    [QueryFormat("yyyy-MM-dd")] // Format DateTime to only include date
+    [DateTimeFormat("yyyy-MM-dd")] // Format DateTime to only include date
     public DateTime? StartDate { get; set; }
 
     public List<string>? Tags { get; set; }
