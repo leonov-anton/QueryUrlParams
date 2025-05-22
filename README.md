@@ -1,1 +1,1 @@
-# QueryUrlParamsGenerator
+# QueryUrlParams
