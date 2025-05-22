@@ -16,15 +16,15 @@ namespace QueryUrlParamsGenerator.SourceGenerators
         {
             _handlers = new List<IPropertyHandler>
             {
-                new InnerUrlParametersDtoPropertyHandler(),
-                new DictionaryPropertyHandler(),
-                new EnumerablePropertyHandler(),
-                new StringPropertyHandler(),
-                new DoublePropertyHandler(),
-                new IntPropertyHandler(),
-                new DateTimePropertyHandler(),
-                new BooleanPropertyHandler(),
-                new DefaultPropertyHandler()
+                new InnerUrlParametersDtoPropertyHandlerStringBuilder(),
+                new DictionaryPropertyHandlerStringBuilder(),
+                new EnumerablePropertyHandlerStringBuilder(),
+                new StringPropertyHandlerStringBuilder(),
+                new DoublePropertyHandlerStringBuilder(),
+                new IntPropertyHandlerStringBuilder(),
+                new DateTimePropertyHandlerStringBuilder(),
+                new BooleanPropertyHandlerStringBuilder(),
+                new DefaultPropertyHandlerStringBuilder()
             };
         }
 

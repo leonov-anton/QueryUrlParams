@@ -141,7 +141,7 @@ namespace QueryUrlParamsGenerator.SourceGenerators
             var objectUrlMethod = MethodDeclaration(
                 PredefinedType(Token(SyntaxKind.StringKeyword)), "GetObjectUrlParams")
                 .AddModifiers(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword))
-                .WithReturnType(ParseTypeName("IEnumerable<string>"))
+                .WithReturnType(PredefinedType(Token(SyntaxKind.StringKeyword)))
                 .AddParameterListParameters(
                     Parameter(Identifier("obj")).WithType(IdentifierName(classInfo.Name)))
                 .WithBody(GetObjectUrlParamsMethodSyntax(classInfo))
@@ -152,7 +152,7 @@ namespace QueryUrlParamsGenerator.SourceGenerators
                     Comment($"/// Extracts the list of query parameters from the <see cref=\"{classInfo.Name}\"/> object."),
                     Comment("/// <summary>"),
                     Comment($"/// <param name=\"obj\">The source object containing parameter values.</param>"),
-                    Comment($"/// <returns>A collection of query parameter strings.</returns>")
+                    Comment($"/// <returns>A string of query parameter with & separator.</returns>")
                     ));
 
             // Create the class declaration
@@ -219,7 +219,10 @@ namespace QueryUrlParamsGenerator.SourceGenerators
         private static BlockSyntax GetObjectUrlParamsMethodSyntax(ClassInfo classInfo)
         {
             var block = Block();
-            block = block.AddStatements(ParseStatement("var parameters = new List<string>();"));
+
+            block = block.AddStatements(ParseStatement($"var sb = new StringBuilder(256);"));
+
+            //block = block.AddStatements(ParseStatement("var parameters = new List<string>();"));
 
             foreach (var prop in classInfo.Properties)
             {
@@ -227,7 +230,9 @@ namespace QueryUrlParamsGenerator.SourceGenerators
                 block = block.AddStatements(ParseStatement(statement));
             }
 
-            block = block.AddStatements(ParseStatement("return parameters.Where(p => !string.IsNullOrWhiteSpace(p));"));
+            //block = block.AddStatements(ParseStatement("return parameters.Where(p => !string.IsNullOrWhiteSpace(p));"));.
+
+            block = block.AddStatements(ParseStatement("return sb.ToString();"));
 
             return block;
         }

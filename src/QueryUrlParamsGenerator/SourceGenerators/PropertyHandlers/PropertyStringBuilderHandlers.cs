@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace QueryUrlParamsGenerator.SourceGenerators.PropertyHandlers
 {
-    internal class InnerUrlParametersDtoPropertyHandler : PropertyHandlerBase
+    internal class InnerUrlParametersDtoPropertyHandlerStringBuilder : PropertyHandlerBase
     {
         private const string queryParameterClassAttributeName = "GenerateQueryUrlAttribute";
 
@@ -22,20 +22,22 @@ namespace QueryUrlParamsGenerator.SourceGenerators.PropertyHandlers
                 ? string.Empty
                 : namespaceSymbol?.ToString() ?? "Generated";
 
-            return $"parameters.AddRange(global::{namespaceName}.{classSymbol.Name}Extensions.GetObjectUrlParams(obj.{prop.OriginalName}));";
+            return $"if (sb.Length > 0)\r\n" +
+                   $"   sb.Append(\"&\");\r\n" +
+                   $"sb.Append(global::{namespaceName}.{classSymbol.Name}Extensions.GetObjectUrlParams(obj.{prop.OriginalName}));";
         }
     }
 
-    internal class DictionaryPropertyHandler : PropertyHandlerBase
+    internal class DictionaryPropertyHandlerStringBuilder : PropertyHandlerBase
     {
         public override bool CanHandle(PropertyInfo prop) =>
             prop.Type.MetadataName == "Dictionary`2";
 
         public override string GetStatement(PropertyInfo prop) =>
-            $"parameters.AddRange({queryParamBuilderNamespase}.FromDictionary(obj.{prop.OriginalName}, \"{prop.Name}\"));";
+            $"{queryParamBuilderNamespase}.AppendParams(sb, \"{prop.Name}\", obj.{prop.OriginalName});";
     }
 
-    internal class EnumerablePropertyHandler : PropertyHandlerBase
+    internal class EnumerablePropertyHandlerStringBuilder : PropertyHandlerBase
     {
         public override bool CanHandle(PropertyInfo prop) =>
             prop.Type.AllInterfaces.Any(i =>
@@ -43,41 +45,41 @@ namespace QueryUrlParamsGenerator.SourceGenerators.PropertyHandlers
                 && prop.Type.SpecialType != SpecialType.System_String);
 
         public override string GetStatement(PropertyInfo prop) =>
-        $"parameters.AddRange({queryParamBuilderNamespase}.FromEnumerable(obj.{prop.OriginalName}, \"{prop.Name}\"));";
+            $"{queryParamBuilderNamespase}.AppendParams(sb, \"{prop.Name}\", obj.{prop.OriginalName});";
     }
 
-    internal class StringPropertyHandler : PropertyHandlerBase
+    internal class StringPropertyHandlerStringBuilder : PropertyHandlerBase
     {
         public override bool CanHandle(PropertyInfo prop) =>
             prop.Type.SpecialType == SpecialType.System_String;
         public override string GetStatement(PropertyInfo prop) =>
-            $"parameters.Add({queryParamBuilderNamespase}.FromString(obj.{prop.OriginalName}, \"{prop.Name}\"));";
+            $"{queryParamBuilderNamespase}.AppendParam(sb, \"{prop.Name}\", obj.{prop.OriginalName});";
     }
 
-    internal class DoublePropertyHandler : PropertyHandlerBase
+    internal class DoublePropertyHandlerStringBuilder : PropertyHandlerBase
     {
         public override bool CanHandle(PropertyInfo prop) =>
             prop.Type.SpecialType == SpecialType.System_Double;
         public override string GetStatement(PropertyInfo prop) =>
-            $"parameters.Add({queryParamBuilderNamespase}.FromDouble(obj.{prop.OriginalName}, \"{prop.Name}\"));";
+            $"{queryParamBuilderNamespase}.AppendParam(sb, \"{prop.Name}\", obj.{prop.OriginalName});";
     }
 
-    internal class IntPropertyHandler : PropertyHandlerBase
+    internal class IntPropertyHandlerStringBuilder : PropertyHandlerBase
     {
         public override bool CanHandle(PropertyInfo prop) =>
             prop.Type.SpecialType == SpecialType.System_Int32;
         public override string GetStatement(PropertyInfo prop) =>
-            $"parameters.Add({queryParamBuilderNamespase}.FromInt(obj.{prop.OriginalName}, \"{prop.Name}\"));";
+            $"{queryParamBuilderNamespase}.AppendParam(sb, \"{prop.Name}\", obj.{prop.OriginalName});";
     }
 
-    internal class DateTimePropertyHandler : PropertyHandlerBase
+    internal class DateTimePropertyHandlerStringBuilder : PropertyHandlerBase
     {
         public override bool CanHandle(PropertyInfo prop) =>
             prop.Type.SpecialType == SpecialType.System_DateTime;
         
         public override string GetStatement(PropertyInfo prop)
         {
-            string format = string.Empty;
+            string format = "yyyy-MM-ddTHH:mm:ssZ";
 
             var dateTimeAttr = prop.AttributeInfos.FirstOrDefault(a => a.TypeName == "DateTimeFormatAttribute");
             if (dateTimeAttr != null)
@@ -85,32 +87,32 @@ namespace QueryUrlParamsGenerator.SourceGenerators.PropertyHandlers
                 format = dateTimeAttr.NamedArgumentInfo
                                 .OfType<StringArgumentInfo>()
                                 .FirstOrDefault(a => a.Name.ToLower() == "format")?
-                                .Value ?? string.Empty;
+                                .Value ?? "yyyy-MM-ddTHH:mm:ssZ";
 
                 if (string.IsNullOrWhiteSpace(format))
                     format = dateTimeAttr.ConstructorArgumentInfo
                                 .OfType<StringArgumentInfo>()
                                 .FirstOrDefault(a => a.Name.ToLower() == "format")?
-                                .Value ?? string.Empty;
+                                .Value ?? "yyyy-MM-ddTHH:mm:ssZ";
             }
 
-            return $"parameters.Add({queryParamBuilderNamespase}.FromDateTime(obj.{prop.OriginalName}, \"{prop.Name}\", \"{format}\"));";
-        }            
+            return $"{queryParamBuilderNamespase}.AppendParam(sb, \"{prop.Name}\", obj.{prop.OriginalName}?.ToString(\"{format}\"));";
+        }
     }
 
-    internal class BooleanPropertyHandler : PropertyHandlerBase
+    internal class BooleanPropertyHandlerStringBuilder : PropertyHandlerBase
     {
         public override bool CanHandle(PropertyInfo prop) =>
             prop.Type.SpecialType == SpecialType.System_Boolean;
         public override string GetStatement(PropertyInfo prop) =>
-            $"parameters.Add({queryParamBuilderNamespase}.FromBool(obj.{prop.OriginalName}, \"{prop.Name}\"));";
+            $"{queryParamBuilderNamespase}.AppendParam(sb, \"{prop.Name}\", obj.{prop.OriginalName});";
     }
 
-    internal class DefaultPropertyHandler : PropertyHandlerBase
+    internal class DefaultPropertyHandlerStringBuilder : PropertyHandlerBase
     {
         public override bool CanHandle(PropertyInfo prop) => true;
         
         public override string GetStatement(PropertyInfo prop) =>
-            $"parameters.Add({queryParamBuilderNamespase}.FromObject(obj.{prop.OriginalName}.ToString(), \"{prop.Name}\"));";
+            $"{queryParamBuilderNamespase}.AppendParam(sb, \"{prop.Name}\", obj.{prop.OriginalName}?.ToString());";
     }
 }

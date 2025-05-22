@@ -17,7 +17,7 @@ namespace QueryUrlParams.Benchmarks
         public DateTime? EndTime { get; set; }
         public List<string>? Tags { get; set; }
         public Dictionary<string, string>? Metadata { get; set; }
-        public bool IsValid { get; set; }
+        public bool? IsValid { get; set; }
     }
 
     [MemoryDiagnoser]
@@ -43,7 +43,7 @@ namespace QueryUrlParams.Benchmarks
                         var value = f.Lorem.Word();
                         return new KeyValuePair<string, string>(key, value);
                     }).ToDictionary(kvp => kvp.Key, kvp => kvp.Value).OrNull(f, 0.4f))
-                .RuleFor(x => x.IsValid, f => f.Random.Bool());
+                .RuleFor(x => x.IsValid, f => f.Random.Bool().OrNull(f, 0.5f));
 
             _dtos = faker.Generate(1000);
         }
