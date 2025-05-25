@@ -1,0 +1,46 @@
+﻿<Project>
+
+	<!--collect analyzers from QueryUrlParams-->
+	<Target Name="GetQueryUrlParamsAnalizers">
+		<ItemGroup>
+			<QUPAnalizers Include="@(Analyzer)" Condition="'%(Analyzer.NuGetPackageId)' == 'QueryUrlParams'" />
+		</ItemGroup>
+	</Target>
+
+	<!--remove analyzers from QueryUrlParams if Roslyn is not found-->
+	<Target Name="GeneratorRemoveAnalyzersForRoslynNotFound"
+			Condition="'$(CSharpCoreTargetsPath)' == ''"
+			AfterTargets="ResolvePackageDependenciesForBuild;ResolveNuGetPackageAssets"
+			DependsOnTargets="GetQueryUrlParamsAnalizers">
+
+		<ItemGroup>
+			<Analyzer Remove="@(QUPAnalizers)" />
+		</ItemGroup>
+	</Target>
+
+	<!--remove analyzers from QueryUrlParams if Roslyn is old-->
+	<Target Name="MyGeneratorRemoveAnalyzersForOldRoslyn"
+			Condition="'$(CSharpCoreTargetsPath)' != ''"
+			AfterTargets="ResolvePackageDependenciesForBuild;ResolveNuGetPackageAssets"
+			DependsOnTargets="MyGeneratorGatherAnalyzers">
+
+		<GetAssemblyIdentity AssemblyFiles="$([System.IO.Path]::Combine(`$([System.IO.Path]::GetDirectoryName($(CSharpCoreTargetsPath)))`,`Microsoft.Build.Tasks.CodeAnalysis.dll`))">
+			<Output TaskParameter="Assemblies" ItemName="CurrentCompilerAssemblyIdentity"/>
+		</GetAssemblyIdentity>
+
+		<PropertyGroup>
+			<CurrentCompilerVersion>@(CurrentCompilerAssemblyIdentity->'%(Version)')</CurrentCompilerVersion>
+			
+			<IsOldRoslyn Condition="$([MSBuild]::VersionLessThan($(CurrentCompilerVersion), 4.0))">true</IsOldRoslyn>
+		</PropertyGroup>
+
+		<ItemGroup Condition="'$(IsOldRoslyn)' == 'true'">
+			<Analyzer Remove="@(QUPAnalizers)" />
+		</ItemGroup>
+
+		<Warning Condition="'$(IsOldRoslyn)' == 'true'"
+				 Code="QUPG001"
+				 Text="QueryUrlParams source generators needs Roslyn — 4.0+. Please install newer version to use QueryErlParams." />
+	</Target>
+
+</Project>

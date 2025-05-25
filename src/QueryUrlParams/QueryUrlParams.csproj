@@ -3,6 +3,35 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
 	<LangVersion>latest</LangVersion>
+	<PackageId>QueryUrlParams</PackageId>
+	<Version>0.1.1</Version>
+	<Authors>Anton Leonov</Authors>
+	<PackageLicenseExpression>MIT</PackageLicenseExpression>
+
+	<RepositoryUrl>https://github.com/leonov-anton/QueryUrlParams</RepositoryUrl>
+	<RepositoryType>git</RepositoryType>
+	<Description>Source Generator that creates query string builders from DTOs with no reflection or runtime cost.</Description>
+	<PackageReadmeFile>README.md</PackageReadmeFile>
+
+	<PackageTags>url-builder</PackageTags>
+
+	<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+	<IncludeBuildOutput>true</IncludeBuildOutput>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\QueryUrlParamsGenerator\QueryUrlParamsGenerator.csproj" ReferenceOutputAssembly="false"/>
+  </ItemGroup>
+
+	<ItemGroup>
+		<None Include="..\..\README.md" Pack="true" PackagePath="" />
+
+		<None Include="QueryUrlParams.targets" Pack="true" PackagePath="build" />
+		
+		<None Include="..\QueryUrlParamsGenerator\bin\$(Configuration)\netstandard2.0\QueryUrlParamsGenerator.dll"
+			  PackagePath="analyzers\dotnet\cs"
+			  Pack="true"
+			  Visible="false" />
+	</ItemGroup>
 
 </Project>

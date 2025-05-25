@@ -278,7 +278,7 @@ namespace QueryUrlParamsGenerator.SourceGenerators
                                             {
                                                 var diagnostic = Diagnostic.Create(
                                                     new DiagnosticDescriptor(
-                                                        "QUPG001",
+                                                        "QUPG002",
                                                         "DateTime format attribute is not supported",
                                                         "DateTime format attribute is not supported for property '{0}'",
                                                         "Usage",
