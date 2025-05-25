@@ -17,16 +17,16 @@ jobs:
         dotnet-version: 8.0.x
 
     - name: Build Generator Project
-      run: dotnet build ./src/QueryUrlParamsGenerator/QueryUrlParamsGenerator.csproj --configuration Release --no-dependencies
+      run: dotnet build ./src/QueryUrlParamsGenerator/QueryUrlParamsGenerator.csproj --configuration Release
 
     - name: Restore dependencies for Main Project
       run: dotnet restore ./src/QueryUrlParams/QueryUrlParams.csproj
 
     - name: Build Main Project
-      run: dotnet build ./src/QueryUrlParams/QueryUrlParams.csproj --configuration Release --no-restore --no-dependencies
+      run: dotnet build ./src/QueryUrlParams/QueryUrlParams.csproj --configuration Release --no-restore
 
     - name: Pack Main Project
-      run: dotnet pack ./src/QueryUrlParams/QueryUrlParams.csproj --configuration Release --no-build --output ./nupkgs --no-dependencies
+      run: dotnet pack ./src/QueryUrlParams/QueryUrlParams.csproj --configuration Release --no-build --output ./nupkgs
 
     - name: Push to NuGet
       run: dotnet nuget push ./nupkgs/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
