@@ -5,8 +5,7 @@ on:
     types: [published]
 
 jobs:
-  build:
-
+  pack-and-publish:
     runs-on: ubuntu-latest
 
     steps:
