@@ -1,4 +1,5 @@
 # QueryUrlParams
+[![NuGet](https://img.shields.io/nuget/v/QueryUrlParams.svg?color=green)](https://www.nuget.org/packages/QueryUrlParams/)
 
 **QueryUrlParams** is a C# Source Generator high-performance source generator for building query URLs from DTO objects in C#.  
 This library generates `ToQueryString()` extension methods for your DTO classes, at compile time, to efficiently convert your decorated DTO classes into URL query strings, avoiding reflection overhead. You control the output using a set of custom attributes.
