@@ -1,8 +1,8 @@
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis;
-using QueryUrlParamsGenerator.SourceGenerators;
 using System.Collections.Immutable;
 using FluentAssertions;
+using QueryUrlParamsGenerator.SourceGenerators;
 
 namespace QueryUrlParamsGenerator.UnitTests
 {
@@ -67,9 +67,9 @@ namespace QueryUrlParamsGenerator.UnitTests
                         public static string ToQueryUrl(this SomeUrlParams obj, string baseUrl)
                         {
                             var parameters = GetObjectUrlParams(obj);
-                            if (parameters.Count() == 0)
+                            if (string.IsNullOrEmpty(parameters))
                                 return baseUrl;
-                            return baseUrl + "?" + string.Join("&", parameters);
+                            return baseUrl + "?" + parameters;
                         }
 
                         /// <summary>
@@ -80,9 +80,11 @@ namespace QueryUrlParamsGenerator.UnitTests
                         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
                         public static string GetObjectUrlParams(SomeUrlParams obj)
                         {
+                            if (obj == null)
+                                return string.Empty;
                             var sb = new StringBuilder(256);
                             global::QueryUrlParams.Helpers.QueryParamStringBuilder.AppendParam(sb, "name", obj.Name);
-                            global::QueryUrlParams.Helpers.QueryParamStringBuilder.AppendParam(sb, "age", obj.Age?.ToString());
+                            global::QueryUrlParams.Helpers.QueryParamStringBuilder.AppendParam(sb, "age", obj.Age);
                             global::QueryUrlParams.Helpers.QueryParamStringBuilder.AppendParam(sb, "address", obj.Address);
                             global::QueryUrlParams.Helpers.QueryParamStringBuilder.AppendParam(sb, "phone_number", obj.PhoneNumber);
                             global::QueryUrlParams.Helpers.QueryParamStringBuilder.AppendParam(sb, "email", obj.Email);
@@ -154,9 +156,9 @@ namespace QueryUrlParamsGenerator.UnitTests
                         public static string ToQueryUrl(this SomeUrlParams obj, string baseUrl)
                         {
                             var parameters = GetObjectUrlParams(obj);
-                            if (parameters.Count() == 0)
+                            if (string.IsNullOrEmpty(parameters))
                                 return baseUrl;
-                            return baseUrl + "?" + string.Join("&", parameters);
+                            return baseUrl + "?" + parameters;
                         }
 
                         /// <summary>
@@ -167,9 +169,11 @@ namespace QueryUrlParamsGenerator.UnitTests
                         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
                         public static string GetObjectUrlParams(SomeUrlParams obj)
                         {
+                            if (obj == null)
+                                return string.Empty;
                             var sb = new StringBuilder(256);
                             global::QueryUrlParams.Helpers.QueryParamStringBuilder.AppendParam(sb, "name", obj.Name);
-                            global::QueryUrlParams.Helpers.QueryParamStringBuilder.AppendParam(sb, "age", obj.Age?.ToString());
+                            global::QueryUrlParams.Helpers.QueryParamStringBuilder.AppendParam(sb, "age", obj.Age);
                             global::QueryUrlParams.Helpers.QueryParamStringBuilder.AppendParam(sb, "address", obj.Address);
                             global::QueryUrlParams.Helpers.QueryParamStringBuilder.AppendParam(sb, "phone_number", obj.PhoneNumber);
                             global::QueryUrlParams.Helpers.QueryParamStringBuilder.AppendParam(sb, "email", obj.Email);
@@ -242,9 +246,9 @@ namespace QueryUrlParamsGenerator.UnitTests
                         public static string ToQueryUrl(this SomeUrlParams obj, string baseUrl)
                         {
                             var parameters = GetObjectUrlParams(obj);
-                            if (parameters.Count() == 0)
+                            if (string.IsNullOrEmpty(parameters))
                                 return baseUrl;
-                            return baseUrl + "?" + string.Join("&", parameters);
+                            return baseUrl + "?" + parameters;
                         }
 
                         /// <summary>
@@ -255,9 +259,11 @@ namespace QueryUrlParamsGenerator.UnitTests
                         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
                         public static string GetObjectUrlParams(SomeUrlParams obj)
                         {
+                            if (obj == null)
+                                return string.Empty;
                             var sb = new StringBuilder(256);
                             global::QueryUrlParams.Helpers.QueryParamStringBuilder.AppendParam(sb, "name", obj.Name);
-                            global::QueryUrlParams.Helpers.QueryParamStringBuilder.AppendParam(sb, "age", obj.Age?.ToString());
+                            global::QueryUrlParams.Helpers.QueryParamStringBuilder.AppendParam(sb, "age", obj.Age);
                             global::QueryUrlParams.Helpers.QueryParamStringBuilder.AppendParam(sb, "address", obj.Address);
                             global::QueryUrlParams.Helpers.QueryParamStringBuilder.AppendParam(sb, "phone_number", obj.PhoneNumber);
                             return sb.ToString();
@@ -329,9 +335,9 @@ namespace QueryUrlParamsGenerator.UnitTests
                         public static string ToQueryUrl(this SomeUrlParams obj, string baseUrl)
                         {
                             var parameters = GetObjectUrlParams(obj);
-                            if (parameters.Count() == 0)
+                            if (string.IsNullOrEmpty(parameters))
                                 return baseUrl;
-                            return baseUrl + "?" + string.Join("&", parameters);
+                            return baseUrl + "?" + parameters;
                         }
 
                         /// <summary>
@@ -342,9 +348,11 @@ namespace QueryUrlParamsGenerator.UnitTests
                         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
                         public static string GetObjectUrlParams(SomeUrlParams obj)
                         {
+                            if (obj == null)
+                                return string.Empty;
                             var sb = new StringBuilder(256);
                             global::QueryUrlParams.Helpers.QueryParamStringBuilder.AppendParam(sb, "user_name", obj.Name);
-                            global::QueryUrlParams.Helpers.QueryParamStringBuilder.AppendParam(sb, "age", obj.Age?.ToString());
+                            global::QueryUrlParams.Helpers.QueryParamStringBuilder.AppendParam(sb, "age", obj.Age);
                             global::QueryUrlParams.Helpers.QueryParamStringBuilder.AppendParam(sb, "address", obj.Address);
                             global::QueryUrlParams.Helpers.QueryParamStringBuilder.AppendParam(sb, "phone_number", obj.PhoneNumber);
                             global::QueryUrlParams.Helpers.QueryParamStringBuilder.AppendParam(sb, "email", obj.Email);
@@ -357,7 +365,171 @@ namespace QueryUrlParamsGenerator.UnitTests
             VerifyGeneratedCode(source_code, expected_code, "SomeUrlParamsExtensions.g.cs");
         }
 
-        private static void VerifyGeneratedCode(string sourceCode, string expectedCode, string filePath)
+        [Fact]
+        public void GenerateQueryUrl_WrongDateTimeFormatAttributeMarking_GenerateDiagnosticWarning()
+        {
+            string source_code = """
+                using QueryUrlParams.Attributes;
+
+                namespace TestApp
+                {
+                    [GenerateQueryUrl]
+                    public class SomeUrlParams
+                    {
+                        [DateTimeFormat("o")]
+                        public string? Name { get; set; }
+                    }
+                }
+                """;
+
+            string expected_code = """
+                // <auto-generated/>
+                #pragma warning disable
+                #nullable enable
+                using System;
+                using System.Text;
+                using System.Collections.Generic;
+                using System.Linq;
+
+                namespace TestApp
+                {
+                    /// <summary>
+                    /// Extension methods for generating query URLs from <see cref="SomeUrlParams"/>.
+                    /// <summary>
+                    public static class SomeUrlParamsExtensions
+                    {
+                        /// <summary>Base uri from GenerateQueryUrlAttribute.</summary>
+                        private const string _defaultBaseUrl = "";
+                        /// <summary>
+                        /// Converts the <see cref="SomeUrlParams"/> object to a query URL using the default base URL.
+                        /// <summary>
+                        /// <param name="obj">The source object containing query parameters.</param>
+                        /// <returns>A query URL string.</returns>
+                        [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+                        public static string ToQueryUrl(this SomeUrlParams obj)
+                        {
+                            return obj.ToQueryUrl(_defaultBaseUrl);
+                        }
+
+                        /// <summary>
+                        /// Converts the <see cref="SomeUrlParams"/> object to a query URL using the specified base URL.
+                        /// <summary>
+                        /// <param name="obj">The source object containing query parameters.</param>
+                        /// <param name="baseUrl">The base URL to use.</param>
+                        /// <returns>A query URL string.</returns>
+                        [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+                        public static string ToQueryUrl(this SomeUrlParams obj, string baseUrl)
+                        {
+                            var parameters = GetObjectUrlParams(obj);
+                            if (string.IsNullOrEmpty(parameters))
+                                return baseUrl;
+                            return baseUrl + "?" + parameters;
+                        }
+
+                        /// <summary>
+                        /// Extracts the list of query parameters from the <see cref="SomeUrlParams"/> object.
+                        /// <summary>
+                        /// <param name="obj">The source object containing parameter values.</param>
+                        /// <returns>A string of query parameter with & separator.</returns>
+                        [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+                        public static string GetObjectUrlParams(SomeUrlParams obj)
+                        {
+                            if (obj == null)
+                                return string.Empty;
+                            var sb = new StringBuilder(256);
+                            global::QueryUrlParams.Helpers.QueryParamStringBuilder.AppendParam(sb, "name", obj.Name);
+                            return sb.ToString();
+                        }
+                    }
+                }
+                """;
+
+            VerifyGeneratedCode(source_code, expected_code, "SomeUrlParamsExtensions.g.cs", "DateTime format attribute is not supported");
+        }
+
+        [Fact]
+        public void GenerateQueryUrl_EnumAsStringAttributeMarking_GenerateDiagnosticWarning()
+        {
+            string source_code = """
+                using QueryUrlParams.Attributes;
+
+                namespace TestApp
+                {
+                    [GenerateQueryUrl]
+                    public class SomeUrlParams
+                    {
+                        [EnumAsString]
+                        public string? Name { get; set; }
+                    }
+                }
+                """;
+
+            string expected_code = """
+                // <auto-generated/>
+                #pragma warning disable
+                #nullable enable
+                using System;
+                using System.Text;
+                using System.Collections.Generic;
+                using System.Linq;
+
+                namespace TestApp
+                {
+                    /// <summary>
+                    /// Extension methods for generating query URLs from <see cref="SomeUrlParams"/>.
+                    /// <summary>
+                    public static class SomeUrlParamsExtensions
+                    {
+                        /// <summary>Base uri from GenerateQueryUrlAttribute.</summary>
+                        private const string _defaultBaseUrl = "";
+                        /// <summary>
+                        /// Converts the <see cref="SomeUrlParams"/> object to a query URL using the default base URL.
+                        /// <summary>
+                        /// <param name="obj">The source object containing query parameters.</param>
+                        /// <returns>A query URL string.</returns>
+                        [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+                        public static string ToQueryUrl(this SomeUrlParams obj)
+                        {
+                            return obj.ToQueryUrl(_defaultBaseUrl);
+                        }
+
+                        /// <summary>
+                        /// Converts the <see cref="SomeUrlParams"/> object to a query URL using the specified base URL.
+                        /// <summary>
+                        /// <param name="obj">The source object containing query parameters.</param>
+                        /// <param name="baseUrl">The base URL to use.</param>
+                        /// <returns>A query URL string.</returns>
+                        [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+                        public static string ToQueryUrl(this SomeUrlParams obj, string baseUrl)
+                        {
+                            var parameters = GetObjectUrlParams(obj);
+                            if (string.IsNullOrEmpty(parameters))
+                                return baseUrl;
+                            return baseUrl + "?" + parameters;
+                        }
+
+                        /// <summary>
+                        /// Extracts the list of query parameters from the <see cref="SomeUrlParams"/> object.
+                        /// <summary>
+                        /// <param name="obj">The source object containing parameter values.</param>
+                        /// <returns>A string of query parameter with & separator.</returns>
+                        [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+                        public static string GetObjectUrlParams(SomeUrlParams obj)
+                        {
+                            if (obj == null)
+                                return string.Empty;
+                            var sb = new StringBuilder(256);
+                            global::QueryUrlParams.Helpers.QueryParamStringBuilder.AppendParam(sb, "name", obj.Name);
+                            return sb.ToString();
+                        }
+                    }
+                }
+                """;
+
+            VerifyGeneratedCode(source_code, expected_code, "SomeUrlParamsExtensions.g.cs", "Enum as string attribute is not supported");
+        }
+
+        private static void VerifyGeneratedCode(string sourceCode, string expectedCode, string filePath, params string[] diagnosticTitles)
         {
             // Simple way load all assembly references from the current domain
             // Load query url params assembly
@@ -387,6 +559,12 @@ namespace QueryUrlParamsGenerator.UnitTests
             GeneratorDriver driver = CSharpGeneratorDriver.Create(generators).WithUpdatedParseOptions((CSharpParseOptions)syntaxTree.Options);
 
             _ = driver.RunGeneratorsAndUpdateCompilation(compilation, out Compilation outputCompilation, out ImmutableArray<Diagnostic> diagnostics);
+
+            if (diagnosticTitles.Length != 0)
+            {
+                var generatedDiagnostics = diagnostics.Select(d => d.Descriptor.Title.ToString());
+                generatedDiagnostics.Should().BeEquivalentTo(diagnosticTitles, "Generated diagnostics titels should match expected titles.");
+            }
 
             SyntaxTree generatedTree = outputCompilation.SyntaxTrees.Single(tree => Path.GetFileName(tree.FilePath) == filePath);
 

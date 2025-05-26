@@ -22,9 +22,12 @@ namespace QueryUrlParamsGenerator.SourceGenerators.PropertyHandlers
                 ? string.Empty
                 : namespaceSymbol?.ToString() ?? "Generated";
 
-            return $"if (sb.Length > 0)\r\n" +
-                   $"   sb.Append(\"&\");\r\n" +
-                   $"sb.Append(global::{namespaceName}.{classSymbol.Name}Extensions.GetObjectUrlParams(obj.{prop.OriginalName}));";
+            return $$"""
+                    if (sb.Length > 0) 
+                        sb.Append("&");
+
+                    sb.Append(global::{{namespaceName}}.{{classSymbol.Name}}Extensions.GetObjectUrlParams(obj.{{prop.OriginalName}}));
+                   """;
         }
     }
 
@@ -79,22 +82,18 @@ namespace QueryUrlParamsGenerator.SourceGenerators.PropertyHandlers
         
         public override string GetStatement(PropertyInfo prop)
         {
-            string format = "yyyy-MM-ddTHH:mm:ssZ";
+            string defaultFormat = "yyyy-MM-ddTHH:mm:ssZ";
 
             var dateTimeAttr = prop.AttributeInfos.FirstOrDefault(a => a.TypeName == "DateTimeFormatAttribute");
-            if (dateTimeAttr != null)
-            {
-                format = dateTimeAttr.NamedArgumentInfo
-                                .OfType<StringArgumentInfo>()
-                                .FirstOrDefault(a => a.Name.ToLower() == "format")?
-                                .Value ?? "yyyy-MM-ddTHH:mm:ssZ";
 
-                if (string.IsNullOrWhiteSpace(format))
-                    format = dateTimeAttr.ConstructorArgumentInfo
-                                .OfType<StringArgumentInfo>()
-                                .FirstOrDefault(a => a.Name.ToLower() == "format")?
-                                .Value ?? "yyyy-MM-ddTHH:mm:ssZ";
-            }
+            var format = dateTimeAttr == null
+                        ? defaultFormat
+                        : dateTimeAttr.NamedArgumentInfo
+                              .OfType<StringArgumentInfo>()
+                              .Concat(dateTimeAttr.ConstructorArgumentInfo.OfType<StringArgumentInfo>())
+                              .Where(a => string.Equals(a.Name, "Format", StringComparison.OrdinalIgnoreCase))
+                              .Select(a => a.Value)
+                              .FirstOrDefault(v => !string.IsNullOrWhiteSpace(v)) ?? defaultFormat;
 
             return $"{queryParamBuilderNamespase}.AppendParam(sb, \"{prop.Name}\", obj.{prop.OriginalName}?.ToString(\"{format}\"));";
         }
@@ -106,6 +105,26 @@ namespace QueryUrlParamsGenerator.SourceGenerators.PropertyHandlers
             prop.Type.SpecialType == SpecialType.System_Boolean;
         public override string GetStatement(PropertyInfo prop) =>
             $"{queryParamBuilderNamespase}.AppendParam(sb, \"{prop.Name}\", obj.{prop.OriginalName});";
+    }
+
+    internal class DecimalPropertyHandlerStringBuilder : PropertyHandlerBase
+    {
+        public override bool CanHandle(PropertyInfo prop) =>
+            prop.Type.SpecialType == SpecialType.System_Decimal;
+
+        public override string GetStatement(PropertyInfo prop) =>
+            $"{queryParamBuilderNamespase}.AppendParam(sb, \"{prop.Name}\", obj.{prop.OriginalName});";
+    }
+
+    internal class EnumPropertyHandlerStringBuilder : PropertyHandlerBase
+    {
+        public override bool CanHandle(PropertyInfo prop) =>
+            prop.Type.TypeKind == TypeKind.Enum;
+        public override string GetStatement(PropertyInfo prop)
+        {
+            bool isString = prop.AttributeInfos.Any(a => a.TypeName == "EnumAsStringAttribute");
+            return $"{queryParamBuilderNamespase}.AppendParam(sb, \"{prop.Name}\", obj.{prop.OriginalName}, {isString.ToString().ToLowerInvariant()});";
+        }
     }
 
     internal class DefaultPropertyHandlerStringBuilder : PropertyHandlerBase

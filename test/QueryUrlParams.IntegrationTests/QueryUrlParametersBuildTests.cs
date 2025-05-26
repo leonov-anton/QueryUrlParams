@@ -1,5 +1,6 @@
 using FluentAssertions;
 using QueryUrlParams.Attributes;
+using QueryUrlParams.Helpers;
 
 namespace QueryUrlParams.IntegrationTests
 {
@@ -16,6 +17,7 @@ namespace QueryUrlParams.IntegrationTests
         public Dictionary<string, string>? Metadata { get; set; }
         public bool? IsValid { get; set; }
         public InnerUrlParams? InnerParams { get; set; }
+        public decimal? Price { get; set; }
     }
 
     [GenerateQueryUrl]
@@ -25,10 +27,38 @@ namespace QueryUrlParams.IntegrationTests
         public int? InnerAge { get; set; }
     }
 
+
+    public enum Status
+    {
+        Active,
+        Inactive,
+        Pending
+    }
+
+    [GenerateQueryUrl]
+    public class EnumUrlParams
+    {
+        public Status? CurrentStatus { get; set; }
+    }
+
+    [GenerateQueryUrl]
+    public class EnumUrlToStringParams
+    {
+        [EnumAsString]
+        public Status? CurrentStatus { get; set; }
+    }
+
+    [GenerateQueryUrl]
+    public class DateTimeFormatParams
+    {
+        [DateTimeFormat("yyyy-MM")]
+        public DateTime? YearAndMoths { get; set; }
+    }
+
     public class QueryUrlParametersBuildTests
     {
         [Fact]
-        public void ToQueryUrl_Should_Handle_Primitives_Collections_And_NestedObjects()
+        public void ToQueryUrl_Should_Handle_Primitives_And_Collections()
         {
             // Arrange
             var startTime = DateTime.UtcNow;
@@ -44,16 +74,12 @@ namespace QueryUrlParams.IntegrationTests
                 EndTime = endTime,
                 Tags = new List<string> { "tag1", "tag2" },
                 Metadata = new Dictionary<string, string>
-                {
-                    { "key1", "value1" },
-                    { "key2", "value2" }
-                },
-                //IsValid = true,
-                InnerParams = new InnerUrlParams
-                {
-                    InnerName = "Inner Name",
-                    InnerAge = 25
-                }
+                    {
+                        { "key1", "value1" },
+                        { "key2", "value2" }
+                    },
+                IsValid = true,
+                Price = 19.99m,
             };
 
             // Act
@@ -73,9 +99,148 @@ namespace QueryUrlParams.IntegrationTests
             uri.Should().Contain("tags=tag2");
             uri.Should().Contain("key1=value1");
             uri.Should().Contain("key2=value2");
-            //uri.Should().Contain("is_valid=true");
-            uri.Should().Contain("inner_name=Inner%20Name");
-            uri.Should().Contain("inner_age=25");
+            uri.Should().Contain("is_valid=true");
+            uri.Should().Contain("price=19.99");
+        }
+
+        [Fact]
+        public void ToQueryUrl_Should_Return_BaseUrl_When_No_Parameters()
+        {
+            // Arrange
+            var urlParams = new SomeUrlParams();
+
+            // Act
+            var baseUrl = "https://example.com/api";
+            var uri = urlParams.ToQueryUrl(baseUrl);
+
+            // Assert
+            uri.Should().NotBeNullOrEmpty();
+            uri.Should().Be(baseUrl);
+        }
+
+        [Fact]
+        public void ToQueryUrl_Should_Handle_Nullable_Properties()
+        {
+            // Arrange
+            var urlParams = new SomeUrlParams
+            {
+                Name = null,
+                Age = null,
+                PhoneNumber = null,
+                Email = null,
+                StartTime = null,
+                EndTime = null,
+                Tags = null,
+                Metadata = null,
+                IsValid = null,
+                InnerParams = null
+            };
+
+            // Act
+            var baseUrl = "https://example.com/api";
+            var uri = urlParams.ToQueryUrl(baseUrl);
+
+            // Assert
+            uri.Should().NotBeNullOrEmpty();
+            uri.Should().Be(baseUrl);
+        }
+
+        [Fact]
+        public void ToQueryUrl_Should_Handle_Empty_Collections()
+        {
+            // Arrange
+            var urlParams = new SomeUrlParams
+            {
+                Tags = new List<string>(),
+                Metadata = new Dictionary<string, string>()
+            };
+
+            // Act
+            var baseUrl = "https://example.com/api";
+            var uri = urlParams.ToQueryUrl(baseUrl);
+
+            // Assert
+            uri.Should().NotBeNullOrEmpty();
+            uri.Should().Be(baseUrl);
+        }
+
+        [Fact]
+        public void ToQueryUrl_Should_Handle_Complex_Nested_Objects()
+        {
+            // Arrange
+            var urlParams = new SomeUrlParams
+            {
+                InnerParams = new InnerUrlParams
+                {
+                    InnerName = "Nested Name",
+                    InnerAge = 40
+                }
+            };
+
+            // Act
+            var baseUrl = "https://example.com/api";
+            var uri = urlParams.ToQueryUrl(baseUrl);
+
+            // Assert
+            uri.Should().NotBeNullOrEmpty();
+            uri.Should().Contain("inner_name=Nested%20Name");
+            uri.Should().Contain("inner_age=40");
+        }
+
+        [Fact]
+        public void ToQueryUrl_Should_Handle_Enums_As_Numeric()
+        {
+            // Arrange
+            var urlParams = new EnumUrlParams
+            {
+                CurrentStatus = Status.Active
+            };
+
+            // Act
+            var baseUrl = "https://example.com/api";
+            var uri = urlParams.ToQueryUrl(baseUrl);
+
+            // Assert
+            uri.Should().NotBeNullOrEmpty();
+            uri.Should().Contain("current_status=0");
+        }
+
+        [Fact]
+        public void ToQueryUrl_Should_Handle_Enums_As_String()
+        {
+            // Arrange
+            var urlParams = new EnumUrlToStringParams
+            {
+                CurrentStatus = Status.Inactive
+            };
+
+            // Act
+            var baseUrl = "https://example.com/api";
+            var uri = urlParams.ToQueryUrl(baseUrl);
+
+            // Assert
+            uri.Should().NotBeNullOrEmpty();
+            uri.Should().Contain("current_status=Inactive");
+        }
+
+        [Fact]
+        public void ToQueryUrl_Should_Handle_DateTime_With_Custom_Format()
+        {
+            // Arrange
+            var time = DateTime.UtcNow;
+
+            var urlParams = new DateTimeFormatParams
+            {
+                YearAndMoths = time
+            };
+            
+            // Act
+            var baseUrl = "https://example.com/api";
+            var uri = urlParams.ToQueryUrl(baseUrl);
+            
+            // Assert
+            uri.Should().NotBeNullOrEmpty();
+            uri.Should().Contain("year_and_moths=" + Uri.EscapeDataString(time.ToString("yyyy-MM")));
         }
     }
 }

@@ -19,8 +19,9 @@ namespace QueryUrlParamsGenerator.SourceGenerators
         private const string queryParameterNameAttributeName = "QueryParameterNameAttribute";
         private const string queryParameterIgnoreAttributeName = "QueryParameterIgnoreAttribute";
         private const string queryParameterDateTimeFormatAttributeName = "DateTimeFormatAttribute";
+        private const string queryParameterEnumAsStringAttributeName = "EnumAsStringAttribute";
 
-        private static PropertyHandlerResolver _propHandlers;
+        private static readonly PropertyHandlerResolver _propHandlers;
 
         static QueryUrlGenerator()
         {
@@ -53,7 +54,7 @@ namespace QueryUrlParamsGenerator.SourceGenerators
             // Select only those classes that have no errors and are not null
             // and cache the result
             var withoutErrors = allClassInfo
-                .Where(static target => !target.Diagnostics.Any() && target.Value != null)
+                .Where(static target => !target.Diagnostics.Any(d => d.IsWarningAsError) && target.Value != null)
                 .Select(static (item, _) => item.Value!);
 
             // Register a source output for all classes without errors
@@ -191,8 +192,8 @@ namespace QueryUrlParamsGenerator.SourceGenerators
             var block = Block();
 
             block = block.AddStatements(ParseStatement("var parameters = GetObjectUrlParams(obj);"));
-            block = block.AddStatements(ParseStatement("if (parameters.Count() == 0) return baseUrl;"));
-            block = block.AddStatements(ParseStatement($"return baseUrl + \"?\" + string.Join(\"&\", parameters);"));
+            block = block.AddStatements(ParseStatement("if (string.IsNullOrEmpty(parameters)) return baseUrl;"));
+            block = block.AddStatements(ParseStatement($"return baseUrl + \"?\" + parameters;"));
 
             return block;
         }
@@ -218,19 +219,16 @@ namespace QueryUrlParamsGenerator.SourceGenerators
         /// <returns></returns>
         private static BlockSyntax GetObjectUrlParamsMethodSyntax(ClassInfo classInfo)
         {
-            var block = Block();
+            BlockSyntax block = Block();
 
+            block = block.AddStatements(ParseStatement($"if (obj == null) return string.Empty;"));
             block = block.AddStatements(ParseStatement($"var sb = new StringBuilder(256);"));
-
-            //block = block.AddStatements(ParseStatement("var parameters = new List<string>();"));
 
             foreach (var prop in classInfo.Properties)
             {
                 var statement = _propHandlers.GetStatement(prop);
                 block = block.AddStatements(ParseStatement(statement));
             }
-
-            //block = block.AddStatements(ParseStatement("return parameters.Where(p => !string.IsNullOrWhiteSpace(p));"));.
 
             block = block.AddStatements(ParseStatement("return sb.ToString();"));
 
@@ -273,33 +271,53 @@ namespace QueryUrlParamsGenerator.SourceGenerators
                                         .Where(p => !p.IsReadOnly && !IsIgnoredProperty(p))
                                         .Select(p =>
                                         {
-                                            if (p.GetAttributes().Any(a => a.AttributeClass?.Name == queryParameterDateTimeFormatAttributeName) &&
-                                                GetNullableSymbolType(p.Type).SpecialType != SpecialType.System_DateTime)
-                                            {
-                                                var diagnostic = Diagnostic.Create(
-                                                    new DiagnosticDescriptor(
-                                                        "QUPG002",
-                                                        "DateTime format attribute is not supported",
-                                                        "DateTime format attribute is not supported for property '{0}'",
-                                                        "Usage",
-                                                        DiagnosticSeverity.Error,
-                                                        true),
-                                                    p.Locations[0],
-                                                    p.Name);
-                                                    
-                                                diagnostics.Add(diagnostic);
-
-                                                return null;
-                                            }
-
                                             var attrInfos = ImmutableArray.CreateBuilder<AttributeInfo>();
 
                                             foreach (var attr in p.GetAttributes())
                                             {
+                                                if (attr.AttributeClass?.Name == queryParameterDateTimeFormatAttributeName &&
+                                                    GetNullableSymbolType(p.Type).SpecialType != SpecialType.System_DateTime)
+                                                {
+                                                    var diagnostic = Diagnostic.Create(
+                                                        new DiagnosticDescriptor(
+                                                            "QUPG010",
+                                                            "DateTime format attribute is not supported",
+                                                            "DateTime format attribute is not supported for property '{0}'",
+                                                            "Usage",
+                                                            DiagnosticSeverity.Warning,
+                                                            true),
+                                                    p.Locations[0],
+                                                    p.Name);
+
+                                                    diagnostics.Add(diagnostic);
+
+                                                    continue;
+                                                }
+
+                                                if (attr.AttributeClass?.Name == queryParameterEnumAsStringAttributeName &&
+                                                    GetNullableSymbolType(p.Type).TypeKind != TypeKind.Enum)
+                                                {
+                                                    var diagnostic = Diagnostic.Create(
+                                                        new DiagnosticDescriptor(
+                                                            "QUPG011",
+                                                            "Enum as string attribute is not supported",
+                                                            "Enum as string attribute is not supported for property '{0}'",
+                                                            "Usage",
+                                                            DiagnosticSeverity.Warning,
+                                                            true),
+                                                    p.Locations[0],
+                                                    p.Name);
+
+                                                    diagnostics.Add(diagnostic);
+
+                                                    continue;
+                                                }
+
+                                                // Create an AttributeInfo for each attribute
                                                 var attrInfo = new AttributeInfo(
-                                                    attr.AttributeClass?.Name ?? string.Empty,
-                                                    attr.GetAttributeConstructureArgs(),
-                                                    attr.GetAttributeNamedArgs());
+                                                attr.AttributeClass?.Name ?? string.Empty,
+                                                attr.GetAttributeConstructureArgs(),
+                                                attr.GetAttributeNamedArgs());
 
                                                 attrInfos.Add(attrInfo);
                                             }

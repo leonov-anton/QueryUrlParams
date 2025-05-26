@@ -12,5 +12,5 @@ namespace QueryUrlParamsGenerator.Models
             string Name,
             string Namespace,
             string BaseUrl,
-            ImmutableArray<PropertyInfo?> Properties);
+            ImmutableArray<PropertyInfo> Properties);
 }

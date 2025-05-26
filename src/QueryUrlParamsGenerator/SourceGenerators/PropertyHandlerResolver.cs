@@ -24,6 +24,8 @@ namespace QueryUrlParamsGenerator.SourceGenerators
                 new IntPropertyHandlerStringBuilder(),
                 new DateTimePropertyHandlerStringBuilder(),
                 new BooleanPropertyHandlerStringBuilder(),
+                new DecimalPropertyHandlerStringBuilder(),
+                new EnumPropertyHandlerStringBuilder(),
                 new DefaultPropertyHandlerStringBuilder()
             };
         }
