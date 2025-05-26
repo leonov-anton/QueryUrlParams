@@ -14,6 +14,7 @@ This library generates `ToQueryString()` extension methods for your DTO classes,
   - Dates and booleans
   - Nested decoreted DTOs
   - Arrays and collections (e.g., `List<T>`, `T[]`)
+  - Enums
   - Custom objects (using ToString() method)
  
 ## 📋 Usage
