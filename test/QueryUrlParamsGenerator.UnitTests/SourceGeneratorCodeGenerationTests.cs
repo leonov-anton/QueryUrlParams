@@ -573,7 +573,8 @@ namespace QueryUrlParamsGenerator.UnitTests
             var compilationResultText = generatedTree.ToString();
 
             // Compare the generated code with the expected code
-            compilationResultText.Should().Be(expectedCode, "Generated code should match the expected code.");
+            // replace line endings to ensure consistency across different environments
+            compilationResultText.Replace("\r\n", "\n").Should().Be(expectedCode.Replace("\r\n", "\n"), "Generated code should match the expected code.");
         }
     }
 }
