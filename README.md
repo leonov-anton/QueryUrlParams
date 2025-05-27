@@ -14,6 +14,7 @@ This library generates `ToQueryString()` extension methods for your DTO classes,
   - Dates and booleans
   - Nested decoreted DTOs
   - Arrays and collections (e.g., `List<T>`, `T[]`)
+  - Enums
   - Custom objects (using ToString() method)
  
 ## 📋 Usage
@@ -24,9 +25,10 @@ Follow these steps to get started:
    - Set a **Base URL** for the generated method, so you don’t need to pass it explicitly every time.  
    - Disable automatic conversion of property names to `snake_case` if you want to keep original format in lower-case. Set **SnakeCaseNameConvert** to `false`.
 3. **Customize properties with attributes** (optional)  
-   - `[QueryParameterIgnore]` — exclude a property from query parameters  
-   - `[QueryParameterName("customName")]` — specify a custom key for a property  
-   - `[DateTimeFormat("yyyy-MM-dd")]` — format DateTime properties
+   - `[QueryParameterIgnore]` - exclude a property from query parameters  
+   - `[QueryParameterName("customName")]` - specify a custom key for a property  
+   - `[DateTimeFormat("yyyy-MM-dd")]` - format DateTime properties
+   - `[EnumAsString]` - use `Enum` string representation as query parameter value (default numeric representation) 
 4. **Call `.ToQueryUrl(baseUrl)` on your DTO instance**  
    This returns the full URL with all non-null properties serialized as query parameters with passing Base Url or without it.
 
