@@ -184,8 +184,6 @@ namespace QueryUrlParamsGenerator.SourceGenerators.PropertyHandlers
             
             return
             [
-                //SyntaxFactory.ParseStatement($"{queryParamBuilderNamespase}.AppendParam(sb, \"{prop.Name}\", obj.{prop.OriginalName}?.ToString(\"{format}\"));"),
-
                 SyntaxFactory.ExpressionStatement(
                     SyntaxFactory.InvocationExpression(
                         SyntaxFactory.MemberAccessExpression(
@@ -203,20 +201,15 @@ namespace QueryUrlParamsGenerator.SourceGenerators.PropertyHandlers
                                             SyntaxFactory.Literal(prop.Name))),
                                     SyntaxFactory.Token(SyntaxKind.CommaToken),
                                     SyntaxFactory.Argument(
-                                        SyntaxFactory.ConditionalAccessExpression(
-                                            SyntaxFactory.MemberAccessExpression(
-                                                SyntaxKind.SimpleMemberAccessExpression,
-                                                SyntaxFactory.IdentifierName("obj"),
-                                                SyntaxFactory.IdentifierName(prop.OriginalName)),
-                                            SyntaxFactory.InvocationExpression(
-                                                SyntaxFactory.MemberBindingExpression(
-                                                    SyntaxFactory.IdentifierName("ToString")),
-                                                SyntaxFactory.ArgumentList(
-                                                    SyntaxFactory.SingletonSeparatedList<ArgumentSyntax>(
-                                                        SyntaxFactory.Argument(
-                                                            SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression,
-                                                                SyntaxFactory.Literal(format))))))))
-                                }))))
+                                        SyntaxFactory.MemberAccessExpression(
+                                            SyntaxKind.SimpleMemberAccessExpression,
+                                            SyntaxFactory.IdentifierName("obj"),
+                                            SyntaxFactory.IdentifierName(prop.OriginalName))),
+                                    SyntaxFactory.Token(SyntaxKind.CommaToken),
+                                    SyntaxFactory.Argument(
+                                        SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression,
+                                            SyntaxFactory.Literal(format)))
+                                })))),
             ];
         }
     }
@@ -243,8 +236,6 @@ namespace QueryUrlParamsGenerator.SourceGenerators.PropertyHandlers
             bool isString = prop.AttributeInfos.Any(a => a.TypeName == "EnumAsStringAttribute");
             return
             [
-                SyntaxFactory.ParseStatement($"{queryParamBuilderNamespase}.AppendParam(sb, \"{prop.Name}\", obj.{prop.OriginalName}, {isString.ToString().ToLowerInvariant()});"),
-
                 SyntaxFactory.ExpressionStatement(
                     SyntaxFactory.InvocationExpression(
                         SyntaxFactory.MemberAccessExpression(
@@ -260,6 +251,12 @@ namespace QueryUrlParamsGenerator.SourceGenerators.PropertyHandlers
                                     SyntaxFactory.Argument(
                                         SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression,
                                             SyntaxFactory.Literal(prop.Name))),
+                                    SyntaxFactory.Token(SyntaxKind.CommaToken),
+                                    SyntaxFactory.Argument(
+                                    SyntaxFactory.MemberAccessExpression(
+                                        SyntaxKind.SimpleMemberAccessExpression,
+                                        SyntaxFactory.IdentifierName("obj"),
+                                        SyntaxFactory.IdentifierName(prop.OriginalName))),
                                     SyntaxFactory.Token(SyntaxKind.CommaToken),
                                     SyntaxFactory.Argument(
                                         SyntaxFactory.LiteralExpression(

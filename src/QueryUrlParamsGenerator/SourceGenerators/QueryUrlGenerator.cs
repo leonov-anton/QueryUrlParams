@@ -396,9 +396,9 @@ namespace QueryUrlParamsGenerator.SourceGenerators
 
                                                 // Create an AttributeInfo for each attribute
                                                 var attrInfo = new AttributeInfo(
-                                                attr.AttributeClass?.Name ?? string.Empty,
-                                                attr.GetAttributeConstructureArgs(),
-                                                attr.GetAttributeNamedArgs());
+                                                    attr.AttributeClass?.Name ?? string.Empty,
+                                                    attr.GetAttributeConstructureArgs(),
+                                                    attr.GetAttributeNamedArgs());
 
                                                 attrInfos.Add(attrInfo);
                                             }

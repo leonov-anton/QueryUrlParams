@@ -27,10 +27,6 @@ namespace QueryUrlParams.Helpers
                     AppendParam(sb, key, b ? "true" : "false");
                     break;
 
-                case DateTime dateTime:
-                    AppendParam(sb, key, dateTime.ToString("o", CultureInfo.InvariantCulture));
-                    break;
-
                 case IFormattable formattable:
                     AppendParam(sb, key, formattable.ToString(null, CultureInfo.InvariantCulture));
                     break;
@@ -39,6 +35,12 @@ namespace QueryUrlParams.Helpers
                     AppendParam(sb, key, value.ToString());
                     break;
             }
+        }
+
+        public static void AppendParam(StringBuilder sb, string key, DateTime? value, string format = "yyyy-MM-ddTHH:mm:ssZ")
+        {
+            if (value == null) return;
+            AppendParam(sb, key, value.Value.ToString(format, CultureInfo.InvariantCulture));
         }
 
         public static void AppendParam<TEnum>(StringBuilder sb, string key, TEnum? value, bool isString = false) where TEnum : struct, Enum
