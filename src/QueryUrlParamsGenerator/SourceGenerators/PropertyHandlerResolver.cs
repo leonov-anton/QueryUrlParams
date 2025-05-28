@@ -1,4 +1,6 @@
-﻿using QueryUrlParamsGenerator.Models;
+﻿using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using QueryUrlParamsGenerator.Models;
 using QueryUrlParamsGenerator.SourceGenerators.PropertyHandlers;
 using QueryUrlParamsGenerator.SourceGenerators.PropertyHandlers.Base;
 using System;
@@ -30,10 +32,10 @@ namespace QueryUrlParamsGenerator.SourceGenerators
             };
         }
 
-        public string GetStatement(PropertyInfo prop)
+        public StatementSyntax[] GetStatement(PropertyInfo prop)
         {
             var handler = _handlers.FirstOrDefault(h => h.CanHandle(prop));
-            return handler?.GetStatement(prop)
+            return handler?.GetStatements(prop)
                ?? throw new InvalidOperationException($"Unsupported property type of property - {prop.Name}");
         }
     }

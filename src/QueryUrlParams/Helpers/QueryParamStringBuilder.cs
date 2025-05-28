@@ -2,48 +2,43 @@
 using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Data.SqlTypes;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Encodings.Web;
 
 namespace QueryUrlParams.Helpers
 {
     public static class QueryParamStringBuilder
     {
-        public static void AppendParam(StringBuilder sb, string key, string? value)
+        public static void AppendParam<T>(StringBuilder sb, string key, T value)
         {
-            if (string.IsNullOrEmpty(value))
-                return;
+            switch (value)
+            {
+                case null:
+                    return;
 
-            if (sb.Length > 0)
-                sb.Append("&");
+                case string s:
+                    AppendParam(sb, key, s);
+                    break;
 
-            sb.Append(key);
-            sb.Append("=");
-            sb.Append(Uri.EscapeDataString(value));
-        }
+                case bool b:
+                    AppendParam(sb, key, b ? "true" : "false");
+                    break;
 
-        public static void AppendParam(StringBuilder sb, string key, double? value)
-        {
-            if (value == null) return;
-            AppendParam(sb, key, value?.ToString(System.Globalization.CultureInfo.InvariantCulture));
-        }
+                case DateTime dateTime:
+                    AppendParam(sb, key, dateTime.ToString("o", CultureInfo.InvariantCulture));
+                    break;
 
-        public static void AppendParam(StringBuilder sb, string key, int? value)
-        {
-            if (value == null) return;
-            AppendParam(sb, key, value?.ToString(System.Globalization.CultureInfo.InvariantCulture));
-        }
+                case IFormattable formattable:
+                    AppendParam(sb, key, formattable.ToString(null, CultureInfo.InvariantCulture));
+                    break;
 
-        public static void AppendParam(StringBuilder sb, string key, decimal? value)
-        {
-            if (value == null) return;
-            AppendParam(sb, key, value?.ToString(System.Globalization.CultureInfo.InvariantCulture));
-        }
-
-        public static void AppendParam(StringBuilder sb, string key, bool? value)
-        {
-            if (value == null) return;
-            AppendParam(sb, key, value?.ToString().ToLowerInvariant());
+                default:
+                    AppendParam(sb, key, value.ToString());
+                    break;
+            }
         }
 
         public static void AppendParam<TEnum>(StringBuilder sb, string key, TEnum? value, bool isString = false) where TEnum : struct, Enum
@@ -62,7 +57,8 @@ namespace QueryUrlParams.Helpers
 
             foreach (var value in values)
             {
-                AppendParam(sb, key, value?.ToString());
+                if (value == null) continue;
+                AppendParam(sb, key, value);
             }
         }
 
@@ -73,8 +69,21 @@ namespace QueryUrlParams.Helpers
             foreach (var kvp in dict)
             {
                 if (kvp.Key == null || kvp.Value == null) continue;
-                AppendParam(sb, $"{kvp.Key}", kvp.Value?.ToString());
+                AppendParam(sb, $"{kvp.Key}", kvp.Value);
             }
+        }
+
+        private static void AppendParam(StringBuilder sb, string key, string value)
+        {
+            if (string.IsNullOrEmpty(value))
+                return;
+
+            if (sb.Length > 0)
+                sb.Append("&");
+
+            sb.Append(key);
+            sb.Append("=");
+            sb.Append(Uri.EscapeDataString(value));
         }
     }
 }

@@ -1,4 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using QueryUrlParamsGenerator.Models;
 using QueryUrlParamsGenerator.SourceGenerators.PropertyHandlers.Base;
 using System;
@@ -12,8 +14,8 @@ namespace QueryUrlParamsGenerator.SourceGenerators.PropertyHandlers
 
         public override bool CanHandle(PropertyInfo prop) =>
             prop.Type.GetAttributes().Any(a => a.AttributeClass?.Name == queryParameterClassAttributeName);
-        
-        public override string GetStatement(PropertyInfo prop)
+
+        public override StatementSyntax[] GetStatements(PropertyInfo prop)
         {
             var classSymbol = (INamedTypeSymbol)prop.Type;
 
@@ -22,12 +24,59 @@ namespace QueryUrlParamsGenerator.SourceGenerators.PropertyHandlers
                 ? string.Empty
                 : namespaceSymbol?.ToString() ?? "Generated";
 
-            return $$"""
-                    if (sb.Length > 0) 
-                        sb.Append("&");
+            return
+            [
+                SyntaxFactory.IfStatement(
+                    SyntaxFactory.BinaryExpression(
+                        SyntaxKind.GreaterThanExpression,
+                        SyntaxFactory.MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            SyntaxFactory.IdentifierName("sb"),
+                            SyntaxFactory.IdentifierName("Length")
+                        ),
+                        SyntaxFactory.LiteralExpression(
+                            SyntaxKind.NumericLiteralExpression,
+                            SyntaxFactory.Literal(0)
+                        )),
+                    SyntaxFactory.ExpressionStatement(
+                        SyntaxFactory.InvocationExpression(
+                            SyntaxFactory.MemberAccessExpression(
+                                SyntaxKind.SimpleMemberAccessExpression,
+                                SyntaxFactory.IdentifierName("sb"),
+                                SyntaxFactory.IdentifierName("Append")
+                            ),
+                            SyntaxFactory.ArgumentList(SyntaxFactory.SingletonSeparatedList(
+                                SyntaxFactory.Argument(
+                                    SyntaxFactory.LiteralExpression(
+                                        SyntaxKind.StringLiteralExpression,
+                                        SyntaxFactory.Literal("&")
+                                    ))))))
+                    ),
 
-                    sb.Append(global::{{namespaceName}}.{{classSymbol.Name}}Extensions.GetObjectUrlParams(obj.{{prop.OriginalName}}));
-                   """;
+                SyntaxFactory.ExpressionStatement(
+                    SyntaxFactory.InvocationExpression(
+                        SyntaxFactory.MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            SyntaxFactory.IdentifierName("sb"),
+                            SyntaxFactory.IdentifierName("Append")
+                        ),
+                        SyntaxFactory.ArgumentList(SyntaxFactory.SingletonSeparatedList(
+                            SyntaxFactory.Argument(
+                                SyntaxFactory.InvocationExpression(
+                                    SyntaxFactory.MemberAccessExpression(
+                                        SyntaxKind.SimpleMemberAccessExpression,
+                                        SyntaxFactory.ParseName($"global::{namespaceName}.{classSymbol.Name}Extensions"),
+                                        SyntaxFactory.IdentifierName("GetObjectUrlParams")
+                                    ),
+                                    SyntaxFactory.ArgumentList(SyntaxFactory.SingletonSeparatedList(
+                                        SyntaxFactory.Argument(
+                                            SyntaxFactory.MemberAccessExpression(
+                                                SyntaxKind.SimpleMemberAccessExpression,
+                                                SyntaxFactory.IdentifierName("obj"),
+                                                SyntaxFactory.IdentifierName(prop.OriginalName)
+                                            )))))))))
+                )
+            ];
         }
     }
 
@@ -36,8 +85,31 @@ namespace QueryUrlParamsGenerator.SourceGenerators.PropertyHandlers
         public override bool CanHandle(PropertyInfo prop) =>
             prop.Type.MetadataName == "Dictionary`2";
 
-        public override string GetStatement(PropertyInfo prop) =>
-            $"{queryParamBuilderNamespase}.AppendParams(sb, \"{prop.Name}\", obj.{prop.OriginalName});";
+        public override StatementSyntax[] GetStatements(PropertyInfo prop) =>
+            [
+                SyntaxFactory.ExpressionStatement(
+                    SyntaxFactory.InvocationExpression(
+                        SyntaxFactory.MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            SyntaxFactory.ParseName(queryParamBuilderNamespase),
+                            SyntaxFactory.IdentifierName("AppendParams")),
+                        SyntaxFactory.ArgumentList(
+                            SyntaxFactory.SeparatedList<ArgumentSyntax>(
+                                new SyntaxNodeOrToken[] {
+                                    SyntaxFactory.Argument(
+                                        SyntaxFactory.IdentifierName("sb")),
+                                    SyntaxFactory.Token(SyntaxKind.CommaToken),
+                                    SyntaxFactory.Argument(
+                                        SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression,
+                                            SyntaxFactory.Literal(prop.Name))),
+                                    SyntaxFactory.Token(SyntaxKind.CommaToken),
+                                    SyntaxFactory.Argument(
+                                        SyntaxFactory.MemberAccessExpression(
+                                            SyntaxKind.SimpleMemberAccessExpression,
+                                            SyntaxFactory.IdentifierName("obj"),
+                                            SyntaxFactory.IdentifierName(prop.OriginalName)))
+                                }))))
+            ];
     }
 
     internal class EnumerablePropertyHandlerStringBuilder : PropertyHandlerBase
@@ -47,45 +119,60 @@ namespace QueryUrlParamsGenerator.SourceGenerators.PropertyHandlers
                 i.OriginalDefinition.SpecialType == SpecialType.System_Collections_IEnumerable
                 && prop.Type.SpecialType != SpecialType.System_String);
 
-        public override string GetStatement(PropertyInfo prop) =>
-            $"{queryParamBuilderNamespase}.AppendParams(sb, \"{prop.Name}\", obj.{prop.OriginalName});";
+        public override StatementSyntax[] GetStatements(PropertyInfo prop) =>
+            [
+                SyntaxFactory.ExpressionStatement(
+                    SyntaxFactory.InvocationExpression(
+                        SyntaxFactory.MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            SyntaxFactory.ParseName(queryParamBuilderNamespase),
+                            SyntaxFactory.IdentifierName("AppendParams")),
+                        SyntaxFactory.ArgumentList(
+                            SyntaxFactory.SeparatedList<ArgumentSyntax>(
+                                new SyntaxNodeOrToken[] {
+                                    SyntaxFactory.Argument(
+                                        SyntaxFactory.IdentifierName("sb")),
+                                    SyntaxFactory.Token(SyntaxKind.CommaToken),
+                                    SyntaxFactory.Argument(
+                                        SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression,
+                                            SyntaxFactory.Literal(prop.Name))),
+                                    SyntaxFactory.Token(SyntaxKind.CommaToken),
+                                    SyntaxFactory.Argument(
+                                        SyntaxFactory.MemberAccessExpression(
+                                            SyntaxKind.SimpleMemberAccessExpression,
+                                            SyntaxFactory.IdentifierName("obj"),
+                                            SyntaxFactory.IdentifierName(prop.OriginalName)))
+                                }))))
+            ];
     }
 
     internal class StringPropertyHandlerStringBuilder : PropertyHandlerBase
     {
         public override bool CanHandle(PropertyInfo prop) =>
             prop.Type.SpecialType == SpecialType.System_String;
-        public override string GetStatement(PropertyInfo prop) =>
-            $"{queryParamBuilderNamespase}.AppendParam(sb, \"{prop.Name}\", obj.{prop.OriginalName});";
     }
 
     internal class DoublePropertyHandlerStringBuilder : PropertyHandlerBase
     {
         public override bool CanHandle(PropertyInfo prop) =>
             prop.Type.SpecialType == SpecialType.System_Double;
-        public override string GetStatement(PropertyInfo prop) =>
-            $"{queryParamBuilderNamespase}.AppendParam(sb, \"{prop.Name}\", obj.{prop.OriginalName});";
     }
 
     internal class IntPropertyHandlerStringBuilder : PropertyHandlerBase
     {
         public override bool CanHandle(PropertyInfo prop) =>
             prop.Type.SpecialType == SpecialType.System_Int32;
-        public override string GetStatement(PropertyInfo prop) =>
-            $"{queryParamBuilderNamespase}.AppendParam(sb, \"{prop.Name}\", obj.{prop.OriginalName});";
     }
 
     internal class DateTimePropertyHandlerStringBuilder : PropertyHandlerBase
     {
         public override bool CanHandle(PropertyInfo prop) =>
             prop.Type.SpecialType == SpecialType.System_DateTime;
-        
-        public override string GetStatement(PropertyInfo prop)
+
+        public override StatementSyntax[] GetStatements(PropertyInfo prop)
         {
             string defaultFormat = "yyyy-MM-ddTHH:mm:ssZ";
-
             var dateTimeAttr = prop.AttributeInfos.FirstOrDefault(a => a.TypeName == "DateTimeFormatAttribute");
-
             var format = dateTimeAttr == null
                         ? defaultFormat
                         : dateTimeAttr.NamedArgumentInfo
@@ -94,8 +181,43 @@ namespace QueryUrlParamsGenerator.SourceGenerators.PropertyHandlers
                               .Where(a => string.Equals(a.Name, "Format", StringComparison.OrdinalIgnoreCase))
                               .Select(a => a.Value)
                               .FirstOrDefault(v => !string.IsNullOrWhiteSpace(v)) ?? defaultFormat;
+            
+            return
+            [
+                //SyntaxFactory.ParseStatement($"{queryParamBuilderNamespase}.AppendParam(sb, \"{prop.Name}\", obj.{prop.OriginalName}?.ToString(\"{format}\"));"),
 
-            return $"{queryParamBuilderNamespase}.AppendParam(sb, \"{prop.Name}\", obj.{prop.OriginalName}?.ToString(\"{format}\"));";
+                SyntaxFactory.ExpressionStatement(
+                    SyntaxFactory.InvocationExpression(
+                        SyntaxFactory.MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            SyntaxFactory.ParseName(queryParamBuilderNamespase),
+                            SyntaxFactory.IdentifierName("AppendParam")),
+                        SyntaxFactory.ArgumentList(
+                            SyntaxFactory.SeparatedList<ArgumentSyntax>(
+                                new SyntaxNodeOrToken[] {
+                                    SyntaxFactory.Argument(
+                                        SyntaxFactory.IdentifierName("sb")),
+                                    SyntaxFactory.Token(SyntaxKind.CommaToken),
+                                    SyntaxFactory.Argument(
+                                        SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression,
+                                            SyntaxFactory.Literal(prop.Name))),
+                                    SyntaxFactory.Token(SyntaxKind.CommaToken),
+                                    SyntaxFactory.Argument(
+                                        SyntaxFactory.ConditionalAccessExpression(
+                                            SyntaxFactory.MemberAccessExpression(
+                                                SyntaxKind.SimpleMemberAccessExpression,
+                                                SyntaxFactory.IdentifierName("obj"),
+                                                SyntaxFactory.IdentifierName(prop.OriginalName)),
+                                            SyntaxFactory.InvocationExpression(
+                                                SyntaxFactory.MemberBindingExpression(
+                                                    SyntaxFactory.IdentifierName("ToString")),
+                                                SyntaxFactory.ArgumentList(
+                                                    SyntaxFactory.SingletonSeparatedList<ArgumentSyntax>(
+                                                        SyntaxFactory.Argument(
+                                                            SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression,
+                                                                SyntaxFactory.Literal(format))))))))
+                                }))))
+            ];
         }
     }
 
@@ -103,27 +225,47 @@ namespace QueryUrlParamsGenerator.SourceGenerators.PropertyHandlers
     {
         public override bool CanHandle(PropertyInfo prop) =>
             prop.Type.SpecialType == SpecialType.System_Boolean;
-        public override string GetStatement(PropertyInfo prop) =>
-            $"{queryParamBuilderNamespase}.AppendParam(sb, \"{prop.Name}\", obj.{prop.OriginalName});";
     }
 
     internal class DecimalPropertyHandlerStringBuilder : PropertyHandlerBase
     {
         public override bool CanHandle(PropertyInfo prop) =>
             prop.Type.SpecialType == SpecialType.System_Decimal;
-
-        public override string GetStatement(PropertyInfo prop) =>
-            $"{queryParamBuilderNamespase}.AppendParam(sb, \"{prop.Name}\", obj.{prop.OriginalName});";
     }
 
     internal class EnumPropertyHandlerStringBuilder : PropertyHandlerBase
     {
         public override bool CanHandle(PropertyInfo prop) =>
             prop.Type.TypeKind == TypeKind.Enum;
-        public override string GetStatement(PropertyInfo prop)
+
+        public override StatementSyntax[] GetStatements(PropertyInfo prop)
         {
             bool isString = prop.AttributeInfos.Any(a => a.TypeName == "EnumAsStringAttribute");
-            return $"{queryParamBuilderNamespase}.AppendParam(sb, \"{prop.Name}\", obj.{prop.OriginalName}, {isString.ToString().ToLowerInvariant()});";
+            return
+            [
+                SyntaxFactory.ParseStatement($"{queryParamBuilderNamespase}.AppendParam(sb, \"{prop.Name}\", obj.{prop.OriginalName}, {isString.ToString().ToLowerInvariant()});"),
+
+                SyntaxFactory.ExpressionStatement(
+                    SyntaxFactory.InvocationExpression(
+                        SyntaxFactory.MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            SyntaxFactory.ParseName(queryParamBuilderNamespase),
+                            SyntaxFactory.IdentifierName("AppendParam")),
+                        SyntaxFactory.ArgumentList(
+                            SyntaxFactory.SeparatedList<ArgumentSyntax>(
+                                new SyntaxNodeOrToken[] {
+                                    SyntaxFactory.Argument(
+                                        SyntaxFactory.IdentifierName("sb")),
+                                    SyntaxFactory.Token(SyntaxKind.CommaToken),
+                                    SyntaxFactory.Argument(
+                                        SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression,
+                                            SyntaxFactory.Literal(prop.Name))),
+                                    SyntaxFactory.Token(SyntaxKind.CommaToken),
+                                    SyntaxFactory.Argument(
+                                        SyntaxFactory.LiteralExpression(
+                                            isString ? SyntaxKind.TrueLiteralExpression : SyntaxKind.FalseLiteralExpression))
+                                }))))
+            ];
         }
     }
 
@@ -131,7 +273,34 @@ namespace QueryUrlParamsGenerator.SourceGenerators.PropertyHandlers
     {
         public override bool CanHandle(PropertyInfo prop) => true;
         
-        public override string GetStatement(PropertyInfo prop) =>
-            $"{queryParamBuilderNamespase}.AppendParam(sb, \"{prop.Name}\", obj.{prop.OriginalName}?.ToString());";
+        public override StatementSyntax[] GetStatements(PropertyInfo prop) =>
+            [
+                SyntaxFactory.ExpressionStatement(
+                    SyntaxFactory.InvocationExpression(
+                        SyntaxFactory.MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            SyntaxFactory.ParseName(queryParamBuilderNamespase),
+                            SyntaxFactory.IdentifierName("AppendParam")),
+                        SyntaxFactory.ArgumentList(
+                            SyntaxFactory.SeparatedList<ArgumentSyntax>(
+                                new SyntaxNodeOrToken[] {
+                                    SyntaxFactory.Argument(
+                                        SyntaxFactory.IdentifierName("sb")),
+                                    SyntaxFactory.Token(SyntaxKind.CommaToken),
+                                    SyntaxFactory.Argument(
+                                        SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression,
+                                            SyntaxFactory.Literal(prop.Name))),
+                                    SyntaxFactory.Token(SyntaxKind.CommaToken),
+                                    SyntaxFactory.Argument(
+                                        SyntaxFactory.ConditionalAccessExpression(
+                                            SyntaxFactory.MemberAccessExpression(
+                                                SyntaxKind.SimpleMemberAccessExpression,
+                                                SyntaxFactory.IdentifierName("obj"),
+                                                SyntaxFactory.IdentifierName(prop.OriginalName)),
+                                            SyntaxFactory.InvocationExpression(
+                                                SyntaxFactory.MemberBindingExpression(
+                                                    SyntaxFactory.IdentifierName("ToString")))))
+                                }))))
+            ];
     }
 }

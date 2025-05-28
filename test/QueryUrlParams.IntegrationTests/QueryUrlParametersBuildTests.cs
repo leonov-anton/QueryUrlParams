@@ -1,9 +1,9 @@
 using FluentAssertions;
 using QueryUrlParams.Attributes;
-using QueryUrlParams.Helpers;
 
 namespace QueryUrlParams.IntegrationTests
 {
+    #region UrlParamsObjects
     [GenerateQueryUrl]
     public class SomeUrlParams
     {
@@ -54,6 +54,32 @@ namespace QueryUrlParams.IntegrationTests
         [DateTimeFormat("yyyy-MM")]
         public DateTime? YearAndMoths { get; set; }
     }
+
+    [GenerateQueryUrl(baseUrl: "https://example.com/api", snakeCaseNameConvert: false)]
+    public class CustomBaseUrlParams
+    {
+        public string? UserName { get; set; }
+        public int? Age { get; set; }
+    }
+
+    [GenerateQueryUrl]
+    public class UrlParamsWithInnerClass
+    {
+        public string? Name { get; set; }
+        public InnerClass? InnerParams { get; set; }
+    }
+
+    public class InnerClass
+    {
+        public string? InnerName { get; set; }
+        public int? InnerAge { get; set; }
+
+        public override string ToString()
+        {
+            return $"{InnerName} {InnerAge}";
+        }
+    }
+    #endregion
 
     public class QueryUrlParametersBuildTests
     {
@@ -241,6 +267,50 @@ namespace QueryUrlParams.IntegrationTests
             // Assert
             uri.Should().NotBeNullOrEmpty();
             uri.Should().Contain("year_and_moths=" + Uri.EscapeDataString(time.ToString("yyyy-MM")));
+        }
+
+        [Fact]
+        public void ToQueryUrl_Should_Handle_Custom_BaseUrl_And_SnakeCase()
+        {
+            // Arrange
+            var urlParams = new CustomBaseUrlParams
+            {
+                UserName = "JaneDoe",
+                Age = 25
+            };
+            
+            // Act
+            var uri = urlParams.ToQueryUrl();
+            
+            // Assert
+            uri.Should().NotBeNullOrEmpty();
+            uri.Should().StartWith("https://example.com/api");
+            uri.Should().Contain("username=JaneDoe");
+            uri.Should().Contain("age=25");
+        }
+
+        [Fact]
+        public void ToQueryUrl_Should_Handle_Inner_Class_ToString()
+        {
+            // Arrange
+            var urlParams = new UrlParamsWithInnerClass
+            {
+                Name = "Test",
+                InnerParams = new InnerClass
+                {
+                    InnerName = "InnerTest",
+                    InnerAge = 30
+                }
+            };
+            
+            // Act
+            var baseUrl = "https://example.com/api";
+            var uri = urlParams.ToQueryUrl(baseUrl);
+            
+            // Assert
+            uri.Should().NotBeNullOrEmpty();
+            uri.Should().Contain("name=Test");
+            uri.Should().Contain($"inner_params={Uri.EscapeDataString("InnerTest 30")}");
         }
     }
 }
