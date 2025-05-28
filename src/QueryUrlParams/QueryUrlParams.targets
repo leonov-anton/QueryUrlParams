@@ -19,10 +19,10 @@
 	</Target>
 
 	<!--remove analyzers from QueryUrlParams if Roslyn is old-->
-	<Target Name="MyGeneratorRemoveAnalyzersForOldRoslyn"
+	<Target Name="RemoveAnalyzersForOldRoslyn"
 			Condition="'$(CSharpCoreTargetsPath)' != ''"
 			AfterTargets="ResolvePackageDependenciesForBuild;ResolveNuGetPackageAssets"
-			DependsOnTargets="MyGeneratorGatherAnalyzers">
+			DependsOnTargets="GetQueryUrlParamsAnalizers">
 
 		<GetAssemblyIdentity AssemblyFiles="$([System.IO.Path]::Combine(`$([System.IO.Path]::GetDirectoryName($(CSharpCoreTargetsPath)))`,`Microsoft.Build.Tasks.CodeAnalysis.dll`))">
 			<Output TaskParameter="Assemblies" ItemName="CurrentCompilerAssemblyIdentity"/>
