@@ -2,10 +2,10 @@
 [![NuGet](https://img.shields.io/nuget/v/QueryUrlParams.svg?color=green)](https://www.nuget.org/packages/QueryUrlParams/) [![Coverage Status](https://img.shields.io/coverallsCoverage/github/leonov-anton/QueryUrlParams.svg?branch=main)](https://img.shields.io/coverallsCoverage/github/leonov-anton/QueryUrlParams.svg?branch=main) [![Tests](https://github.com/leonov-anton/QueryUrlParams/actions/workflows/coveralls.yml/badge.svg)](https://github.com/leonov-anton/QueryUrlParams/actions/workflows/coveralls.yml)
 
 **QueryUrlParams** is a C# Source Generator high-performance source generator for building query URLs from DTO objects in C#.  
-This library generates `ToQueryString()` extension methods for your DTO classes, at compile time, to efficiently convert your decorated DTO classes into URL query strings, avoiding reflection overhead. You control the output using a set of custom attributes.
+This library generates `ToQueryUrl()` extension methods for your DTO classes, at compile time, to efficiently convert your decorated DTO classes into URL query strings, avoiding reflection overhead. You control the output using a set of custom attributes.
 
 ## ✨ Features
-- Compile-time generation of `ToQueryString()` extension methods.
+- Compile-time generation of `ToQueryUrl()` extension methods.
 - Custom attributes for fine-grained control over serialization.
 - Simple, clear syntax and predictable output.
 - No reflection – high performance at runtime.
